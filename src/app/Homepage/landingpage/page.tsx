@@ -1,7 +1,7 @@
 import { Header, Footer } from '@/components/Homepage/layout'
 import { Hero, NewsSection, FeaturesSection, CTASection } from '@/components/Homepage/landing'
 
-export default function Home() {
+export default function LandingPage() {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
