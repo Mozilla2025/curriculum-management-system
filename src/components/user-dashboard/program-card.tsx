@@ -2,7 +2,7 @@
 
 'use client'
 
-import { ArrowRight, GraduationCap, BookOpen, UserGraduate } from 'lucide-react'
+import { ArrowRight, GraduationCap, BookOpen, User } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { Program } from '@/types/user-dashboard'
 
@@ -14,7 +14,7 @@ interface ProgramCardProps {
 
 const programIcons = {
   masters: GraduationCap,
-  phd: UserGraduate,
+  phd: User,
   degree: BookOpen,
 }
 
