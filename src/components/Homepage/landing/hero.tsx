@@ -85,11 +85,13 @@ export function Hero() {
             ref={statsRef as React.RefObject<HTMLDivElement>}
             className="grid grid-cols-2 lg:grid-cols-4 gap-4"
           >
-            {heroStats.map((stat, index) => (
+            {heroStats.map((stat) => (
               <StatCounter
                 key={stat.key}
-                {...stat}
-                index={index}
+                label={stat.label}
+                target={stat.target}
+                icon={stat.icon}
+                index={heroStats.indexOf(stat)}
                 shouldAnimate={isIntersecting}
               />
             ))}

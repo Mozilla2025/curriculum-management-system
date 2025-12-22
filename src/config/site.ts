@@ -5,7 +5,7 @@ export const siteConfig = {
   shortName: 'MUST',
   
   links: {
-    dashboard: '/app/dashboard',
+    dashboard: '/user/dashboard',
     adminDashboard: '/admin/dashboard',
     about: '/about',
     login: '/login',
