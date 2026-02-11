@@ -50,6 +50,18 @@ const config: Config = {
         sans: ['Inter', 'system-ui', 'sans-serif'],
         display: ['Montserrat', 'system-ui', 'sans-serif'],
       },
+      fontSize: {
+        'xs': ['0.875rem', { lineHeight: '1.25rem' }],
+        'sm': ['1rem', { lineHeight: '1.5rem' }],
+        'base': ['1.125rem', { lineHeight: '1.75rem' }],
+        'lg': ['1.25rem', { lineHeight: '1.75rem' }],
+        'xl': ['1.5rem', { lineHeight: '2rem' }],
+        '2xl': ['1.875rem', { lineHeight: '2.25rem' }],
+        '3xl': ['2.25rem', { lineHeight: '2.5rem' }],
+        '4xl': ['3rem', { lineHeight: '1' }],
+        '5xl': ['3.75rem', { lineHeight: '1' }],
+        '6xl': ['4.5rem', { lineHeight: '1' }],
+      },
       boxShadow: {
         'soft': '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
         'medium': '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
@@ -69,6 +81,7 @@ const config: Config = {
         'shimmer': 'shimmer 3s ease-in-out infinite',
         'fade-in': 'fadeIn 0.6s ease forwards',
         'slide-up': 'slideUp 0.6s ease forwards',
+        'slide-in-right': 'slideInRight 0.4s ease forwards',
         'counter': 'counter 2s ease-out forwards',
       },
       keyframes: {
@@ -91,6 +104,10 @@ const config: Config = {
         slideUp: {
           from: { opacity: '0', transform: 'translateY(30px)' },
           to: { opacity: '1', transform: 'translateY(0)' },
+        },
+        slideInRight: {
+          from: { opacity: '0', transform: 'translateX(20px)' },
+          to: { opacity: '1', transform: 'translateX(0)' },
         },
       },
       transitionTimingFunction: {

@@ -30,7 +30,7 @@ export default function UserLayout({
         <UserHeader onMobileSidebarToggle={handleMobileSidebarToggle} />
         
         <main className="flex-1 overflow-y-auto">
-          <div className="p-6 md:p-8 max-w-[1820px] mx-auto">
+          <div className="pt-4 px-6 md:pt-4 md:px-8 max-w-[1820px] mx-auto">
             {children}
           </div>
         </main>

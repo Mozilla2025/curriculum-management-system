@@ -71,17 +71,17 @@ export function DashboardCards({ stats, loading = false }: DashboardCardsProps) 
 
   if (loading) {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {[...Array(4)].map((_, i) => (
           <div
             key={i}
-            className="bg-white rounded-xl border border-gray-200 p-6 animate-pulse"
+            className="bg-white rounded-xl border border-gray-200 p-4 animate-pulse"
           >
-            <div className="flex justify-between items-start mb-4">
-              <div className="w-12 h-12 bg-gray-200 rounded-xl" />
+            <div className="flex justify-between items-start mb-3">
+              <div className="w-10 h-10 bg-gray-200 rounded-lg" />
             </div>
-            <div className="h-8 bg-gray-200 rounded w-20 mb-2" />
-            <div className="h-4 bg-gray-200 rounded w-32" />
+            <div className="h-7 bg-gray-200 rounded w-20 mb-2" />
+            <div className="h-3 bg-gray-200 rounded w-32" />
           </div>
         ))}
       </div>
@@ -91,7 +91,7 @@ export function DashboardCards({ stats, loading = false }: DashboardCardsProps) 
   return (
     <div
       ref={ref as React.RefObject<HTMLDivElement>}
-      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
     >
       {cards.map((card, index) => (
         <DashboardCard
@@ -117,7 +117,7 @@ function DashboardCard({ card, index, shouldAnimate }: DashboardCardItemProps) {
   return (
     <div
       className={cn(
-        'bg-white rounded-xl border border-gray-200 p-6',
+        'bg-white rounded-xl border border-gray-200 p-4',
         'transition-all duration-500 hover:shadow-strong hover:border-must-green',
         'hover:-translate-y-1 relative overflow-hidden group',
         shouldAnimate ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
@@ -135,21 +135,21 @@ function DashboardCard({ card, index, shouldAnimate }: DashboardCardItemProps) {
       />
 
       {/* Icon */}
-      <div className="flex justify-between items-start mb-4">
+      <div className="flex justify-between items-start mb-3">
         <div
           className={cn(
-            'w-12 h-12 rounded-xl flex items-center justify-center',
+            'w-10 h-10 rounded-lg flex items-center justify-center',
             'text-white shadow-soft transition-transform duration-300',
             'group-hover:scale-110 group-hover:rotate-6',
             gradients[card.gradient as keyof typeof gradients]
           )}
         >
-          <Icon name={card.icon} size={24} />
+          <Icon name={card.icon} size={20} />
         </div>
       </div>
 
       {/* Value */}
-      <div className="text-3xl font-black text-gray-900 mb-1">{count}</div>
+      <div className="text-2xl font-black text-gray-900 mb-1">{count}</div>
 
       {/* Label */}
       <div className="text-sm font-medium text-gray-600 mb-2">{card.label}</div>
@@ -157,7 +157,7 @@ function DashboardCard({ card, index, shouldAnimate }: DashboardCardItemProps) {
       {/* Trend */}
       {card.trend && (
         <div className="flex items-center gap-1 text-xs font-semibold text-must-green">
-          {card.trendIcon && <Icon name={card.trendIcon} size={12} />}
+          {card.trendIcon && <Icon name={card.trendIcon} size={10} />}
           <span>{card.trend}</span>
         </div>
       )}
