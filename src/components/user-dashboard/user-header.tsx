@@ -38,8 +38,8 @@ export function UserHeader({ onMobileSidebarToggle }: UserHeaderProps) {
   }
 
   const handleAdminLogin = () => {
-    // router.push('/admin/login')
-    console.log('Admin login - route not yet created')
+    // Navigate to the auth login page
+    router.push('/login')
   }
 
   const handleLogout = () => {

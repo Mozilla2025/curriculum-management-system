@@ -24,9 +24,10 @@ const nextConfig = {
   // Redirect configuration for legacy routes
   async redirects() {
     return [
+      
       {
-        source: '/login',
-        destination: '/admin/login',
+        source: '/admin/login',
+        destination: '/login',
         permanent: true,
       },
       {
