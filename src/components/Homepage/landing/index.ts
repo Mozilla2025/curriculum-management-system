@@ -1,0 +1,6 @@
+export { Hero } from './hero'
+export { NewsSection } from './news-section'
+export { FeaturesSection } from './features'
+export { CTASection } from './cta-section'
+export { ImageCarousel } from './image-carousel'
+export { StatCounter } from './stat-counter'

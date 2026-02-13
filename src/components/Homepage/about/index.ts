@@ -1,0 +1,6 @@
+export { AboutHero } from './AboutHero'
+export { MissionSection } from './MissionSection'
+export { FeaturesOverview } from './FeaturesOverview'
+export { ProcessSection } from './ProcessSection'
+export { TeamSection } from './TeamSection'
+export { AboutCTA } from './AboutCTA'
