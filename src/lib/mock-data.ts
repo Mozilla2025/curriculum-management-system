@@ -336,6 +336,55 @@ export const mockCurriculaData = {
   ],
 }
 
+// Admin-compatible mock data derived from existing mock data
+export const mockAdminCurricula = mockCurriculaData.curricula.map((c) => {
+  const schoolEntry = mockDashboardData.schools.find((s) => s.name === c.school)
+  const programEntry = schoolEntry?.programs.find((p) =>
+    p.departments.some((d) => d.curricula.some((cur) => cur.title === c.title))
+  )
+  return {
+    id: String(c.id),
+    title: c.title,
+    code: c.title
+      .split(' ')
+      .map((w) => w[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 8),
+    status: c.status as 'approved' | 'pending' | 'draft' | 'rejected' | 'under_review',
+    schoolId: schoolEntry?.id ?? '',
+    schoolName: c.school,
+    programId: programEntry?.id ?? '',
+    programName: programEntry?.name ?? '',
+    department: c.department,
+    lastModified: c.lastUpdated,
+    createdDate: c.lastUpdated,
+    effectiveDate: c.lastUpdated,
+    enrollments: Math.floor(Math.random() * 200) + 20,
+  }
+})
+
+export const mockAdminSchools = mockDashboardData.schools.map((s) => ({
+  id: s.id,
+  name: s.name,
+}))
+
+export const mockAdminPrograms = mockDashboardData.schools.flatMap((s) =>
+  s.programs.map((p) => ({
+    id: p.id,
+    name: p.name,
+  }))
+)
+
+export const mockAdminStats = {
+  total: mockCurriculaData.curricula.length,
+  approved: mockCurriculaData.curricula.filter((c) => c.status === 'approved').length,
+  pending: mockCurriculaData.curricula.filter((c) => c.status === 'pending').length,
+  rejected: mockCurriculaData.curricula.filter((c) => c.status === 'rejected').length,
+  draft: mockCurriculaData.curricula.filter((c) => c.status === 'draft').length,
+  underReview: mockCurriculaData.curricula.filter((c) => c.status === 'under_review').length,
+}
+
 export const mockAnalyticsData = {
   summaryStats: [
     { value: '85%', label: 'Approval Rate' },
