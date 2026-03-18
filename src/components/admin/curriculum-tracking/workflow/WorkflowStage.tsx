@@ -25,7 +25,6 @@ export function WorkflowStage({
   onStageAction, onViewDetails, onUploadDocument, onAddNotes,
   onEditTracking, onAssignTracking, onToggleStatus,
 }: Props) {
-  const [showMore, setShowMore] = useState(false)
   const stageData = curriculum.stages[stage.key]
   const status    = stageData?.status ?? (isCurrentStage ? curriculum.status : 'pending')
   const si        = getStatusInfo(status)
@@ -34,15 +33,6 @@ export function WorkflowStage({
   const isUnderReview = ['under_review', 'on_hold'].includes(status)
   const days          = curriculum.daysInCurrentStage ?? 0
   const daysWarning   = isCurrentStage && days > 14
-
-  const moreActions = [
-    { label: 'View Details',   icon: 'fas fa-eye',            fn: () => onViewDetails(curriculum) },
-    { label: 'Upload Document',icon: 'fas fa-upload',         fn: () => onUploadDocument(curriculum, stage.key) },
-    { label: 'Add Notes',      icon: 'fas fa-sticky-note',    fn: () => onAddNotes(curriculum, stage.key) },
-    { label: 'Edit Tracking',  icon: 'fas fa-edit',           fn: () => onEditTracking(curriculum) },
-    { label: 'Assign',         icon: 'fas fa-user-plus',      fn: () => onAssignTracking(curriculum) },
-    { label: curriculum.isActive ? 'Deactivate' : 'Activate', icon: curriculum.isActive ? 'fas fa-pause' : 'fas fa-play', fn: () => onToggleStatus(curriculum) },
-  ]
 
   return (
     <div className={cn('rounded-xl border-2 transition-all duration-300 mb-3',
@@ -152,26 +142,42 @@ export function WorkflowStage({
               </button>
             )}
 
-            {/* More actions */}
-            <div className="relative ml-auto">
-              <button onClick={() => setShowMore(!showMore)}
-                className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold bg-white border border-gray-200 text-gray-600 rounded-lg hover:border-must-green hover:text-must-green transition-all whitespace-nowrap">
-                <i className="fas fa-ellipsis-h" aria-hidden="true" /> More
-              </button>
-              {showMore && (
-                <>
-                  <div className="fixed inset-0 z-10" onClick={() => setShowMore(false)} aria-hidden="true" />
-                  <div className="absolute right-0 top-full mt-1.5 bg-white border-2 border-must-green rounded-xl shadow-strong z-20 min-w-[180px] overflow-hidden">
-                    {moreActions.map(({ label, icon, fn }) => (
-                      <button key={label} onClick={() => { fn(); setShowMore(false) }}
-                        className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 hover:bg-must-green/5 hover:text-must-green transition-colors font-medium">
-                        <i className={cn(icon, 'w-4 text-gray-400')} aria-hidden="true" />{label}
-                      </button>
-                    ))}
-                  </div>
-                </>
-              )}
-            </div>
+            {/* Action buttons - all visible */}
+            <button onClick={() => onViewDetails(curriculum)}
+              className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold bg-white border border-gray-200 text-gray-600 rounded-lg hover:border-must-green hover:text-must-green transition-all whitespace-nowrap"
+              title="View full curriculum details">
+              <i className="fas fa-eye" aria-hidden="true" /> Details
+            </button>
+
+            <button onClick={() => onUploadDocument(curriculum, stage.key)}
+              className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold bg-white border border-gray-200 text-gray-600 rounded-lg hover:border-must-green hover:text-must-green transition-all whitespace-nowrap"
+              title="Upload documents for this stage">
+              <i className="fas fa-upload" aria-hidden="true" /> Upload
+            </button>
+
+            <button onClick={() => onAddNotes(curriculum, stage.key)}
+              className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold bg-white border border-gray-200 text-gray-600 rounded-lg hover:border-must-green hover:text-must-green transition-all whitespace-nowrap"
+              title="Add notes or comments">
+              <i className="fas fa-sticky-note" aria-hidden="true" /> Notes
+            </button>
+
+            <button onClick={() => onEditTracking(curriculum)}
+              className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold bg-white border border-gray-200 text-gray-600 rounded-lg hover:border-must-green hover:text-must-green transition-all whitespace-nowrap"
+              title="Edit tracking information">
+              <i className="fas fa-edit" aria-hidden="true" /> Edit
+            </button>
+
+            <button onClick={() => onAssignTracking(curriculum)}
+              className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold bg-white border border-gray-200 text-gray-600 rounded-lg hover:border-must-green hover:text-must-green transition-all whitespace-nowrap"
+              title="Assign to a team member">
+              <i className="fas fa-user-plus" aria-hidden="true" /> Assign
+            </button>
+
+            <button onClick={() => onToggleStatus(curriculum)}
+              className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold bg-white border border-gray-200 text-gray-600 rounded-lg hover:border-must-green hover:text-must-green transition-all whitespace-nowrap"
+              title={curriculum.isActive ? 'Deactivate this tracking' : 'Activate this tracking'}>
+              <i className={cn(curriculum.isActive ? 'fas fa-pause' : 'fas fa-play')} aria-hidden="true" /> {curriculum.isActive ? 'Deactivate' : 'Activate'}
+            </button>
           </div>
         </div>
       )}
