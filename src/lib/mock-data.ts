@@ -1,6 +1,7 @@
 // Mock data for the dashboard
 import type { CurriculumTracking } from '@/types/tracking'
 import type { User, UserStats } from '@/types/user-management'
+import type { Notification } from '@/types/notifications'
 
 export const mockUsers: User[] = [
   {
@@ -1184,3 +1185,133 @@ export const mockTrackingStats = {
     low: mockCurriculumTrackingData.filter((c) => c.priority === 'low').length,
   },
 }
+
+// Mock data for notifications
+export const mockNotifications: Notification[] = [
+  {
+    id: 1,
+    type: 'workflow',
+    priority: 'high',
+    title: 'Curriculum Approval Required',
+    message:
+      "Computer Science Bachelor's curriculum is pending your approval at the Dean Committee stage.",
+    time: '2 minutes ago',
+    timestamp: new Date(Date.now() - 2 * 60 * 1000),
+    unread: true,
+    urgent: true,
+    actions: ['Approve', 'Review', 'Reject'],
+  },
+  {
+    id: 2,
+    type: 'reminder',
+    priority: 'medium',
+    title: 'Site Inspection Scheduled',
+    message:
+      'Quality Assurance site inspection for Engineering programs scheduled for tomorrow at 10:00 AM.',
+    time: '15 minutes ago',
+    timestamp: new Date(Date.now() - 15 * 60 * 1000),
+    unread: true,
+    urgent: false,
+    actions: ['View Details', 'Reschedule'],
+  },
+  {
+    id: 3,
+    type: 'system',
+    priority: 'low',
+    title: 'System Backup Completed',
+    message: 'Daily system backup completed successfully. All curriculum data backed up.',
+    time: '1 hour ago',
+    timestamp: new Date(Date.now() - 60 * 60 * 1000),
+    unread: false,
+    urgent: false,
+    actions: ['View Report'],
+  },
+  {
+    id: 4,
+    type: 'alert',
+    priority: 'high',
+    title: 'Curriculum Expiring Soon',
+    message: 'Business Administration curriculum expires in 30 days. Review required.',
+    time: '2 hours ago',
+    timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000),
+    unread: true,
+    urgent: true,
+    actions: ['Review', 'Extend', 'Archive'],
+  },
+  {
+    id: 5,
+    type: 'workflow',
+    priority: 'medium',
+    title: 'New Curriculum Submitted',
+    message:
+      'School of Engineering has submitted a new curriculum for Environmental Engineering.',
+    time: '3 hours ago',
+    timestamp: new Date(Date.now() - 3 * 60 * 60 * 1000),
+    unread: false,
+    urgent: false,
+    actions: ['Review', 'Assign'],
+  },
+  {
+    id: 6,
+    type: 'reminder',
+    priority: 'high',
+    title: 'CUE Review Deadline',
+    message:
+      'Commission of University Education review response deadline is in 3 days for Medical Sciences curriculum.',
+    time: '4 hours ago',
+    timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000),
+    unread: true,
+    urgent: false,
+    actions: ['Prepare Response', 'Contact CUE'],
+  },
+  {
+    id: 7,
+    type: 'system',
+    priority: 'medium',
+    title: 'User Access Request',
+    message: 'New user registration request from Dr. Sarah Wilson, School of Medicine.',
+    time: '5 hours ago',
+    timestamp: new Date(Date.now() - 5 * 60 * 60 * 1000),
+    unread: false,
+    urgent: false,
+    actions: ['Approve', 'Review Profile', 'Deny'],
+  },
+  {
+    id: 8,
+    type: 'workflow',
+    priority: 'low',
+    title: 'Committee Meeting Reminder',
+    message:
+      'Dean Committee meeting scheduled for Friday at 2:00 PM to review pending curricula.',
+    time: '1 day ago',
+    timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000),
+    unread: false,
+    urgent: false,
+    actions: ['View Agenda', 'Add to Calendar'],
+  },
+  {
+    id: 9,
+    type: 'alert',
+    priority: 'medium',
+    title: 'Duplicate Curriculum Detected',
+    message:
+      'Potential duplicate curriculum detected: "Information Technology" vs "IT Systems".',
+    time: '1 day ago',
+    timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000),
+    unread: true,
+    urgent: false,
+    actions: ['Compare', 'Merge', 'Keep Separate'],
+  },
+  {
+    id: 10,
+    type: 'system',
+    priority: 'low',
+    title: 'Monthly Report Generated',
+    message: 'Monthly curriculum tracking report for November 2024 is now available.',
+    time: '2 days ago',
+    timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+    unread: false,
+    urgent: false,
+    actions: ['Download', 'Share', 'Archive'],
+  },
+]
