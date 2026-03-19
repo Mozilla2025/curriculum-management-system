@@ -103,7 +103,7 @@ export function AdminHeader({
   const unreadCount = notifications.filter(n => !n.read).length
 
   return (
-    <header className="sticky top-0 z-30 w-full bg-must-green shadow-md border-b border-must-green-dark h-16 transition-all duration-300">
+    <header className="fixed top-0 left-0 right-0 z-40 bg-must-green shadow-md border-b border-must-green-dark h-16 transition-all duration-300 lg:left-64">
       <div className="h-full px-3 md:px-6">
         <div className="flex items-center justify-between h-full gap-2 md:gap-4 relative">
           {/* Sidebar Toggle Button (Mobile) */}

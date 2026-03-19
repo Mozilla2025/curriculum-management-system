@@ -87,7 +87,7 @@ export default function AdminLayout({
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col lg:ml-64 transition-all duration-300">
-        {/* Header */}
+        {/* Header - Fixed at top */}
         <AdminHeader
           onSearchSubmit={handleSearch}
           user={mockUser}
@@ -96,8 +96,8 @@ export default function AdminLayout({
           onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
         />
 
-        {/* Page Content */}
-        <main className="flex-1 overflow-y-auto">
+        {/* Page Content - with top padding for fixed header */}
+        <main className="flex-1 overflow-y-auto pt-16">
           <div className="pt-4 px-6 md:pt-4 md:px-8 max-w-[1820px] mx-auto w-full">
             {children}
           </div>
