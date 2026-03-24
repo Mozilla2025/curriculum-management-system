@@ -1,108 +1,124 @@
 'use client'
 
+import dynamic from 'next/dynamic'
 import { useRouter } from 'next/navigation'
-import { useState, useRef } from 'react'
-import { Star, Rocket, Info } from 'lucide-react'
+import { useState } from 'react'
 import { cn } from '@/lib/utils'
-import { Badge, Button } from '@/components/ui'
+import { Button } from '@/components/ui'
 import { StatCounter } from './stat-counter'
-import { ImageCarousel } from './image-carousel'
 import { useIntersection } from '@/hooks'
 import { heroStats } from '@/config/landing'
 import { siteConfig } from '@/config/site'
 import { scrollToElement } from '@/lib/utils'
+
+const HeroDashboardMockup = dynamic(
+  () => import('./hero-dashboard-mockup').then((m) => m.HeroDashboardMockup),
+  { ssr: false }
+)
 
 export function Hero() {
   const [isNavigating, setIsNavigating] = useState(false)
   const router = useRouter()
   const { ref: statsRef, isIntersecting } = useIntersection()
 
-  const handleLaunchDashboard = async () => {
+  const handleAccessDashboard = async () => {
     setIsNavigating(true)
-    await new Promise(r => setTimeout(r, 1000))
+    await new Promise((r) => setTimeout(r, 800))
     router.push(siteConfig.links.dashboard)
   }
 
   return (
-    <section 
+    <section
       id="heroSection"
-      className={cn(
-        'bg-must-green flex items-center relative overflow-hidden',
-        'py-12 md:py-16 lg:py-20', 
-        'before:absolute before:inset-0 before:animate-[landing-grid-float_20s_linear_infinite]'
-      )}
+      className={cn('relative overflow-hidden bg-must-green', 'py-20 md:py-28 lg:py-32')}
+      style={{
+        backgroundImage:
+          'radial-gradient(circle, rgba(255,255,255,0.07) 1px, transparent 1px)',
+        backgroundSize: '28px 28px',
+      }}
     >
-      <div className="max-w-[1820px] mx-auto px-4 md:px-8 grid lg:grid-cols-2 gap-10 lg:gap-16 items-center relative z-10 w-full">
-        
-        {/* Content Column */}
-        <div className="text-white flex flex-col justify-center h-full">
-          {/* Updated Badge: Larger padding, text, and border */}
-          <Badge 
-            variant="outline" 
-            className="mb-8 w-fit px-5 py-1.5 text-sm md:text-base font-semibold border-2 tracking-normal shadow-sm backdrop-blur-md"
-          >
-            <Star className="w-4 h-4 md:w-5 md:h-5 mr-2 fill-current" />
-            Welcome to Curriculum Management System
-          </Badge>
+      {/* Top edge rule */}
+      <div className="absolute top-0 inset-x-0 h-px bg-white/10" />
 
-          {/* Updated Heading: Significantly larger and bolder */}
-          <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold leading-tight mb-8 tracking-normal drop-shadow-sm">
-            Advanced Curriculum Management System
-          </h1>
+      {/* Bottom-left ambient glow — very subtle, no sweeping gradient */}
+      <div className="absolute -bottom-32 -left-32 w-96 h-96 rounded-full bg-must-green/15 blur-3xl pointer-events-none" />
 
-          {/* Updated Description: Increased readability and weight */}
-          <p className="text-base md:text-lg lg:text-lg opacity-95 leading-relaxed mb-10 max-w-2xl font-normal">
-            Streamline your academic curriculum management with our comprehensive digital platform. 
-            Designed specifically for MUST&apos;s academic excellence, featuring intelligent tracking, 
-            seamless approvals, and detailed analytics.
-          </p>
+      <div className="relative z-10 max-w-[1400px] mx-auto px-6 md:px-12 w-full">
 
-          {/* Updated Buttons: Larger touch targets */}
-          <div className="flex flex-wrap gap-4 mb-12">
-            <Button
-              size="lg"
-              onClick={handleLaunchDashboard}
-              isLoading={isNavigating}
-              leftIcon={<Rocket className="w-5 h-5" />}
-              className="shadow-strong text-base px-7 py-5"
-            >
-              Launch Dashboard
-            </Button>
-            
-            <Button
-              variant="secondary"
-              size="lg"
-              onClick={() => scrollToElement('featuresSection')}
-              leftIcon={<Info className="w-5 h-5" />}
-              className="text-base px-7 py-5"
-            >
-              Learn More
-            </Button>
+        {/* ── Two-column layout ── */}
+        <div className="grid lg:grid-cols-2 gap-16 lg:gap-20 items-center">
+
+          {/* Left: Copy */}
+          <div className="text-white">
+
+            {/* Institutional label — replaces generic badge */}
+            <div className="flex items-center gap-3 mb-8">
+              <div className="w-8 h-px bg-white shrink-0" />
+              <span className="text-white text-xs font-semibold tracking-[0.2em] uppercase">
+                {siteConfig.institution}
+              </span>
+            </div>
+
+            <h1 className="font-display font-bold text-[2.6rem] md:text-5xl lg:text-6xl leading-[1.1] mb-6 text-white">
+              Official Curriculum<br />
+              Management<br />
+              System
+            </h1>
+
+            <p className="text-white/95 text-base md:text-lg leading-relaxed mb-10 max-w-lg font-normal">
+              A centralised platform for faculty to collaborate, submit, and track
+              curriculum proposals — from department drafting through Senate
+              approval to CUE accreditation.
+            </p>
+
+            {/* CTAs */}
+            <div className="flex flex-wrap gap-4">
+              <Button
+                size="lg"
+                variant="primary"
+                onClick={handleAccessDashboard}
+                isLoading={isNavigating}
+                className="font-semibold"
+              >
+                Access Dashboard
+              </Button>
+
+              <Button
+                variant="secondary"
+                size="lg"
+                onClick={() => scrollToElement('featuresSection')}
+              >
+                Learn More
+              </Button>
+            </div>
           </div>
 
-          {/* Stats Grid */}
-          <div 
-            ref={statsRef as React.RefObject<HTMLDivElement>}
-            className="grid grid-cols-2 lg:grid-cols-4 gap-4"
-          >
-            {heroStats.map((stat) => (
-              <StatCounter
-                key={stat.key}
-                label={stat.label}
-                target={stat.target}
-                icon={stat.icon}
-                index={heroStats.indexOf(stat)}
-                shouldAnimate={isIntersecting}
-              />
-            ))}
+          {/* Right: Dashboard mockup (hidden on mobile) */}
+          <div className="hidden lg:flex items-center justify-end">
+            <HeroDashboardMockup />
           </div>
         </div>
 
-        {/* Carousel Column */}
-        <div className="relative w-full flex items-center justify-center">
-          <ImageCarousel />
+        {/* ── Stats row ── */}
+        <div
+          ref={statsRef as React.RefObject<HTMLDivElement>}
+          className="grid grid-cols-2 md:grid-cols-4 gap-8 mt-20"
+        >
+          {heroStats.map((stat, index) => (
+            <StatCounter
+              key={stat.key}
+              label={stat.label}
+              target={stat.target}
+              icon={stat.icon}
+              index={index}
+              shouldAnimate={isIntersecting}
+            />
+          ))}
         </div>
       </div>
+
+      {/* Bottom edge rule */}
+      <div className="absolute bottom-0 inset-x-0 h-px bg-white/10" />
     </section>
   )
 }

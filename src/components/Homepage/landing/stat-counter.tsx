@@ -1,7 +1,5 @@
 'use client'
 
-import { cn } from '@/lib/utils'
-import { Icon } from '@/components/ui'
 import { useCounterAnimation } from '@/hooks'
 import type { StatItem } from '@/types'
 
@@ -10,52 +8,21 @@ interface StatCounterProps extends StatItem {
   shouldAnimate: boolean
 }
 
-export function StatCounter({ 
-  target, 
-  icon, 
-  label, 
-  index, 
-  shouldAnimate 
-}: StatCounterProps) {
+export function StatCounter({ target, label, index, shouldAnimate }: StatCounterProps) {
   const count = useCounterAnimation(target, 2000, shouldAnimate)
 
   return (
     <div
-      className={cn(
-        'bg-white/95 rounded-xl p-5 text-center shadow-medium',
-        'border border-white/30 transition-all duration-300',
-        'hover:-translate-y-2 hover:scale-105 hover:bg-white hover:shadow-strong',
-        'animate-float relative overflow-hidden group'
-      )}
-      style={{ animationDelay: `${index * 0.2}s` }}
+      className="border-t border-white/30 pt-6"
+      style={{ animationDelay: `${index * 150}ms` }}
     >
-      {/* Shine effect */}
-      <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent group-hover:translate-x-full transition-transform duration-700 pointer-events-none" />
-      
-      {/* Icon - solid teal/green background with white icon */}
-      <div 
-        className={cn(
-          'w-10 h-10 rounded-xl flex items-center justify-center mx-auto mb-2',
-          'bg-must-teal text-white'
-        )}
-      >
-        <Icon name={icon} size={18} />
-      </div>
-      
-      {/* Counter */}
-      <span 
-        className={cn(
-          'block text-2xl md:text-3xl font-bold mb-1',
-          'bg-gradient-gold bg-clip-text text-transparent'
-        )}
-      >
+      <p className="text-3xl md:text-4xl font-bold font-display text-white tabular-nums">
         {count}
-      </span>
-      
-      {/* Label */}
-      <span className="text-gray-600 text-xs font-medium">
+        <span className="text-must-gold ml-0.5">+</span>
+      </p>
+      <p className="mt-1.5 text-sm text-white/85 font-medium tracking-wide">
         {label}
-      </span>
+      </p>
     </div>
   )
 }
