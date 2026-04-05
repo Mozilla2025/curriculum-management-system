@@ -12,8 +12,14 @@ import { TrackingFilters }           from '@/components/admin/curriculum-trackin
 import { CurriculumWorkflowSelector } from '@/components/admin/curriculum-tracking/workflow/CurriculumWorkflowSelector'
 import { TrackingTable }             from '@/components/admin/curriculum-tracking/table/TrackingTable'
 import { TrackingNotificationBanner } from '@/components/admin/curriculum-tracking/shared/TrackingNotificationBanner'
-import { TrackingLoadingSpinner }    from '@/components/admin/curriculum-tracking/shared/TrackingLoadingSpinner'
 import { DocumentViewer }            from '@/components/admin/curriculum-tracking/shared/DocumentViewer'
+import { 
+  TrackingPageSkeleton, 
+  TrackingHeaderSkeleton, 
+  TrackingStatsSkeleton, 
+  TrackingFiltersSkeleton, 
+  TrackingTableSkeleton 
+} from '@/components/admin/curriculum-tracking/shared/TrackingSkeletons'
 import { StageDetailsModal }         from '@/components/admin/curriculum-tracking/modals/StageDetailsModal'
 import { DocumentUploadModal }       from '@/components/admin/curriculum-tracking/modals/DocumentUploadModal'
 import { NotesModal }                from '@/components/admin/curriculum-tracking/modals/NotesModal'
@@ -249,7 +255,7 @@ export function CurriculumTrackingPageClient() {
       />
 
       {isLoading && curricula.length === 0 ? (
-        <TrackingLoadingSpinner />
+        <TrackingPageSkeleton />
       ) : (
         <>
           {/* Stats Cards */}

@@ -3,3 +3,4 @@ export { Card, CardHeader, CardTitle, CardDescription, CardContent } from './car
 export { Badge } from './badge'
 export { Spinner } from './spinner'
 export { Icon } from './icon'
+export { Skeleton, SkeletonLines, SkeletonCard, SkeletonTable } from './skeleton'
