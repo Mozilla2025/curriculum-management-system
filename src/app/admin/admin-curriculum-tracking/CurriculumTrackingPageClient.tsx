@@ -142,13 +142,13 @@ export function CurriculumTrackingPageClient() {
   }, [openModal, setSelectedCurriculum])
 
   // ─── Action handlers ───────────────────────────────────────────────────────
-  const handleDocumentUpload = useCallback(async (files: File[]) => {
+  const handleDocumentUpload = useCallback(async (data: { file: File; documentType: string; notes: string }) => {
     setIsActionLoading(true)
     try {
       await new Promise((r) => setTimeout(r, 1200))
-      showNotification(`${files.length} document(s) uploaded successfully`, 'success')
+      showNotification(`Document uploaded successfully`, 'success')
       closeModal('documentUpload')
-    } catch { showNotification('Failed to upload documents', 'error') }
+    } catch { showNotification('Failed to upload document', 'error') }
     finally { setIsActionLoading(false) }
   }, [closeModal, setIsActionLoading, showNotification])
 

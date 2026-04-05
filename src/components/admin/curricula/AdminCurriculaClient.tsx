@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, useCallback, useRef } from 'react'
+import { useRouter } from 'next/navigation'
 import type {
   Curriculum,
   School,
@@ -43,6 +44,7 @@ export function AdminCurriculaClient({
   initialPrograms,
   initialStats,
 }: AdminCurriculaClientProps) {
+  const router = useRouter()
   const [curricula, setCurricula] = useState<Curriculum[]>(initialCurricula)
   const [schools] = useState<School[]>(initialSchools)
   const [programs] = useState<Program[]>(initialPrograms)
@@ -181,7 +183,7 @@ export function AdminCurriculaClient({
   }
 
   const handleAddNew = () => {
-    setModalState({ isOpen: true, isEdit: false, curriculum: null })
+    router.push('/admin/admin-all-curricula/create')
   }
 
   const handleEdit = (curriculum: Curriculum) => {
