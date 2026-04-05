@@ -1,3 +1,5 @@
+'use client'
+
 import { cn } from '@/lib/utils'
 import { SectionHeader, AnimatedCard } from '@/components/shared'
 import { useIntersection } from '@/hooks'
@@ -7,7 +9,7 @@ export function ProcessSection() {
   const { ref, isIntersecting } = useIntersection()
 
   return (
-    <section ref={ref as React.RefObject<HTMLElement>} className="py-20 bg-white">
+    <section id="process" ref={ref as React.RefObject<HTMLElement>} className="py-20 bg-white">
       <div className="max-w-4xl mx-auto px-4 md:px-8">
         <SectionHeader
           title="How It Works"

@@ -1,3 +1,5 @@
+'use client'
+
 import { cn } from '@/lib/utils'
 import { Icon } from '@/components/ui'
 import { SectionHeader, AnimatedCard } from '@/components/shared'

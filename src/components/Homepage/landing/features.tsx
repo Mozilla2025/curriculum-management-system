@@ -59,7 +59,7 @@ export function FeaturesSection() {
 
   return (
     <section 
-      id="featuresSection"
+      id="features"
       ref={ref as React.RefObject<HTMLElement>}
       className="bg-white py-20 md:py-24"
     >

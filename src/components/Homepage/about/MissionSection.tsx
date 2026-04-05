@@ -3,7 +3,7 @@ import { cn } from '@/lib/utils'
 
 export function MissionSection() {
   return (
-    <section className="py-20 bg-white">
+    <section id="mission" className="py-20 bg-white">
       <div className="max-w-6xl mx-auto px-4 md:px-8">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           <div>

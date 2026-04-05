@@ -1,5 +1,13 @@
 import { Header, Footer } from '@/components/Homepage/layout'
 import { Hero, NewsSection, FeaturesSection, CTASection } from '@/components/Homepage/landing'
+import {
+  AboutHero,
+  MissionSection,
+  FeaturesOverview,
+  ProcessSection,
+  TeamSection,
+  AboutCTA
+} from '@/components/Homepage/about'
 
 export default function Home() {
   return (
@@ -9,7 +17,12 @@ export default function Home() {
         <Hero />
         <NewsSection />
         <FeaturesSection />
-        <CTASection />
+        <MissionSection />
+        <FeaturesOverview />
+        <ProcessSection />
+        <TeamSection />
+        {/* <AboutCTA />
+        <CTASection /> */}
       </main>
       <Footer />
     </div>

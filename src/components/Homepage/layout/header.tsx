@@ -3,8 +3,8 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { useRouter, usePathname } from 'next/navigation'
-import { Menu, X, Gauge, Info, Loader2 } from 'lucide-react'
+import { usePathname } from 'next/navigation'
+import { Menu, X, Gauge } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui'
 import { siteConfig } from '@/config/site'
@@ -12,30 +12,19 @@ import { useScroll, useMobile } from '@/hooks'
 
 export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-  const [isNavigating, setIsNavigating] = useState(false)
   const { isScrolled, scrollY } = useScroll(100)
   const isMobile = useMobile()
-  const router = useRouter()
   const pathname = usePathname()
 
   // Determine if header should have white section styling
   const isOnWhiteSection = scrollY > 500
 
-  const handleDashboardClick = async () => {
-    setIsNavigating(true)
+  const handleSmoothScroll = (sectionId: string) => {
     setIsMobileMenuOpen(false)
-    await new Promise(r => setTimeout(r, 800))
-    router.push(siteConfig.links.dashboard)
-    setIsNavigating(false)
-  }
-
-  const handleAboutClick = () => {
-    if (pathname === '/about') {
-      window.scrollTo({ top: 0, behavior: 'smooth' })
-      return
+    const element = document.getElementById(sectionId)
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' })
     }
-    setIsMobileMenuOpen(false)
-    router.push(siteConfig.links.about)
   }
 
   // Close mobile menu on route change
@@ -89,27 +78,62 @@ export function Header() {
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-6">
+        <nav className="hidden md:flex items-center gap-3">
           <button
-            onClick={handleAboutClick}
+            onClick={() => handleSmoothScroll('features')}
             className={cn(
-              'px-4 py-2 rounded-lg font-bold text-sm transition-all',
+              'px-4 py-2 rounded-lg font-semibold text-sm transition-all',
               isOnWhiteSection 
                 ? 'text-white hover:bg-white/20' 
                 : 'text-gray-900 hover:bg-must-green-lighter hover:text-must-green-darker'
             )}
           >
-            About
+            Features
           </button>
-          
-          <Button 
-            onClick={handleDashboardClick}
-            isLoading={isNavigating}
-            leftIcon={<Gauge className="w-5 h-5" />}
-            className="bg-gradient-green text-white hover:shadow-green"
+
+          <button
+            onClick={() => handleSmoothScroll('mission')}
+            className={cn(
+              'px-4 py-2 rounded-lg font-semibold text-sm transition-all',
+              isOnWhiteSection 
+                ? 'text-white hover:bg-white/20' 
+                : 'text-gray-900 hover:bg-must-green-lighter hover:text-must-green-darker'
+            )}
           >
-            Access Dashboard
-          </Button>
+            Mission
+          </button>
+
+          <button
+            onClick={() => handleSmoothScroll('process')}
+            className={cn(
+              'px-4 py-2 rounded-lg font-semibold text-sm transition-all',
+              isOnWhiteSection 
+                ? 'text-white hover:bg-white/20' 
+                : 'text-gray-900 hover:bg-must-green-lighter hover:text-must-green-darker'
+            )}
+          >
+            Process
+          </button>
+
+          <button
+            onClick={() => handleSmoothScroll('team')}
+            className={cn(
+              'px-4 py-2 rounded-lg font-semibold text-sm transition-all',
+              isOnWhiteSection 
+                ? 'text-white hover:bg-white/20' 
+                : 'text-gray-900 hover:bg-must-green-lighter hover:text-must-green-darker'
+            )}
+          >
+            Team
+          </button>
+
+          <Link 
+            href={siteConfig.links.dashboard}
+            className="inline-flex items-center justify-center gap-2 px-6 py-2 rounded-lg bg-gradient-to-r from-must-gold to-must-gold-light text-gray-900 font-semibold hover:shadow-gold hover:-translate-y-0.5 hover:scale-105 transition-all duration-300 ml-4"
+          >
+            <Gauge className="w-5 h-5" />
+            Dashboard
+          </Link>
         </nav>
 
         {/* Mobile Menu Button */}
@@ -133,23 +157,44 @@ export function Header() {
             onClick={() => setIsMobileMenuOpen(false)}
           />
           <nav className="fixed top-0 right-0 h-full w-72 bg-white shadow-xl z-50 md:hidden animate-slide-in-right">
-            <div className="flex flex-col p-6 pt-20 gap-4">
+            <div className="flex flex-col p-6 pt-20 gap-3">
               <button
-                onClick={handleAboutClick}
-                className="flex items-center gap-3 p-4 rounded-xl text-gray-900 font-semibold hover:bg-must-green-lighter transition-colors"
+                onClick={() => handleSmoothScroll('features')}
+                className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-900 font-semibold hover:bg-must-green-lighter transition-colors text-sm"
               >
-                <Info size={20} />
-                About
+                Features
               </button>
-              
+
               <button
-                onClick={handleDashboardClick}
-                disabled={isNavigating}
-                className="flex items-center justify-center gap-3 p-4 rounded-xl bg-gradient-green text-white font-bold shadow-soft"
+                onClick={() => handleSmoothScroll('mission')}
+                className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-900 font-semibold hover:bg-must-green-lighter transition-colors text-sm"
               >
-                {isNavigating ? <Loader2 className="animate-spin" /> : <Gauge size={20} />}
-                Access Dashboard
+                Mission
               </button>
+
+              <button
+                onClick={() => handleSmoothScroll('process')}
+                className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-900 font-semibold hover:bg-must-green-lighter transition-colors text-sm"
+              >
+                Process
+              </button>
+
+              <button
+                onClick={() => handleSmoothScroll('team')}
+                className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-900 font-semibold hover:bg-must-green-lighter transition-colors text-sm"
+              >
+                Team
+              </button>
+
+              <div className="border-t border-gray-200 mt-4 pt-4">
+                <Link
+                  href={siteConfig.links.dashboard}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-r from-must-gold to-must-gold-light text-gray-900 font-bold shadow-soft text-sm hover:shadow-gold hover:-translate-y-0.5 hover:scale-105 transition-all duration-300"
+                >
+                  <Gauge size={18} />
+                  Dashboard
+                </Link>
+              </div>
             </div>
           </nav>
         </>

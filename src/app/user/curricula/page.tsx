@@ -260,7 +260,7 @@ export default function CurriculaPage() {
       {/* Curriculum Details Modal */}
       {showModal && selectedCurriculum && (
         <div className="fixed inset-0 z-50 overflow-y-auto">
-          <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+          <div className="flex min-h-screen items-center justify-end px-4 pt-4 pb-20 text-center sm:p-0">
             {/* Background overlay */}
             <div
               className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75"
@@ -268,17 +268,17 @@ export default function CurriculaPage() {
             />
 
             {/* Modal panel */}
-            <div className="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
+            <div className="relative inline-block bg-white rounded-lg md:rounded-2xl text-left overflow-hidden shadow-xl transform transition-all my-8 mr-4 sm:mr-8 align-middle sm:max-w-2xl w-auto max-w-[calc(100vw-2rem)] max-h-[90vh] overflow-y-auto">
               {/* Modal Header */}
-              <div className="bg-gradient-to-r from-must-green to-must-teal px-6 py-5">
+              <div className="bg-gradient-to-r from-must-green to-must-teal px-4 sm:px-6 py-4 sm:py-5">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-2xl font-bold text-white flex items-center gap-3">
-                    <BookOpen className="w-7 h-7" />
-                    Curriculum Details
+                  <h3 className="text-xl sm:text-2xl font-bold text-white flex items-center gap-2 sm:gap-3">
+                    <BookOpen className="w-6 h-6 sm:w-7 sm:h-7 flex-shrink-0" />
+                    <span>Curriculum Details</span>
                   </h3>
                   <button
                     onClick={handleCloseModal}
-                    className="text-white hover:bg-white/20 rounded-lg p-2 transition-colors"
+                    className="text-white hover:bg-white/20 rounded-lg p-2 transition-colors flex-shrink-0"
                   >
                     <X className="w-6 h-6" />
                   </button>
@@ -286,24 +286,24 @@ export default function CurriculaPage() {
               </div>
 
               {/* Modal Body */}
-              <div className="px-6 py-6 space-y-6">
+              <div className="px-4 sm:px-6 py-4 sm:py-6 space-y-4 sm:space-y-6">
                 {/* Title Section */}
                 <div>
-                  <h4 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-2">
+                  <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
                     Curriculum Title
                   </h4>
-                  <p className="text-xl font-bold text-gray-900">
+                  <p className="text-lg sm:text-xl font-bold text-gray-900">
                     {selectedCurriculum.title}
                   </p>
                 </div>
 
                 {/* Info Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-6">
                   {/* School */}
-                  <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                  <div className="bg-gray-50 rounded-lg sm:rounded-xl p-3 sm:p-4 border border-gray-200">
                     <div className="flex items-start gap-3">
-                      <div className="w-10 h-10 bg-must-green/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <Building className="w-5 h-5 text-must-green" />
+                      <div className="w-8 sm:w-10 h-8 sm:h-10 bg-must-green/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <Building className="w-4 sm:w-5 h-4 sm:h-5 text-must-green" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
@@ -317,10 +317,10 @@ export default function CurriculaPage() {
                   </div>
 
                   {/* Department */}
-                  <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                  <div className="bg-gray-50 rounded-lg sm:rounded-xl p-3 sm:p-4 border border-gray-200">
                     <div className="flex items-start gap-3">
-                      <div className="w-10 h-10 bg-must-gold/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <FileText className="w-5 h-5 text-must-gold" />
+                      <div className="w-8 sm:w-10 h-8 sm:h-10 bg-must-gold/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <FileText className="w-4 sm:w-5 h-4 sm:h-5 text-must-gold" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
@@ -334,10 +334,10 @@ export default function CurriculaPage() {
                   </div>
 
                   {/* Status */}
-                  <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                  <div className="bg-gray-50 rounded-lg sm:rounded-xl p-3 sm:p-4 border border-gray-200">
                     <div className="flex items-start gap-3">
-                      <div className="w-10 h-10 bg-blue-500/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <XCircle className="w-5 h-5 text-blue-500" />
+                      <div className="w-8 sm:w-10 h-8 sm:h-10 bg-blue-500/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <XCircle className="w-4 sm:w-5 h-4 sm:h-5 text-blue-500" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
@@ -351,10 +351,10 @@ export default function CurriculaPage() {
                   </div>
 
                   {/* Last Updated */}
-                  <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                  <div className="bg-gray-50 rounded-lg sm:rounded-xl p-3 sm:p-4 border border-gray-200">
                     <div className="flex items-start gap-3">
-                      <div className="w-10 h-10 bg-purple-500/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <Calendar className="w-5 h-5 text-purple-500" />
+                      <div className="w-8 sm:w-10 h-8 sm:h-10 bg-purple-500/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <Calendar className="w-4 sm:w-5 h-4 sm:h-5 text-purple-500" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
@@ -370,7 +370,7 @@ export default function CurriculaPage() {
 
                 {/* Program Type */}
                 {selectedCurriculum.program && (
-                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-200">
+                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg sm:rounded-xl p-3 sm:p-4 border border-blue-200">
                     <h4 className="text-xs font-semibold text-blue-700 uppercase tracking-wider mb-2">
                       Program Type
                     </h4>
@@ -381,21 +381,21 @@ export default function CurriculaPage() {
                 )}
 
                 {/* Additional Info */}
-                <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                <div className="bg-gray-50 rounded-lg sm:rounded-xl p-3 sm:p-4 border border-gray-200">
                   <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
                     Curriculum Information
                   </h4>
                   <ul className="space-y-2 text-sm text-gray-700">
                     <li className="flex items-start gap-2">
-                      <span className="text-must-green mt-0.5">•</span>
+                      <span className="text-must-green mt-0.5 flex-shrink-0">•</span>
                       <span>This curriculum includes comprehensive course structure and requirements</span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <span className="text-must-green mt-0.5">•</span>
+                      <span className="text-must-green mt-0.5 flex-shrink-0">•</span>
                       <span>Documentation and approval workflow are maintained in the system</span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <span className="text-must-green mt-0.5">•</span>
+                      <span className="text-must-green mt-0.5 flex-shrink-0">•</span>
                       <span>All updates are tracked and version-controlled</span>
                     </li>
                   </ul>
@@ -403,15 +403,15 @@ export default function CurriculaPage() {
               </div>
 
               {/* Modal Footer */}
-              <div className="bg-gray-50 px-6 py-4 flex justify-end gap-3 border-t border-gray-200">
+              <div className="bg-gray-50 px-4 sm:px-6 py-3 sm:py-4 flex justify-end gap-2 sm:gap-3 border-t border-gray-200 sticky bottom-0">
                 <button
                   onClick={handleCloseModal}
-                  className="px-6 py-2.5 bg-white border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition-colors"
+                  className="px-4 sm:px-6 py-2 sm:py-2.5 bg-white border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition-colors text-sm sm:text-base"
                 >
                   Close
                 </button>
                 <button
-                  className="px-6 py-2.5 bg-must-green text-white rounded-lg hover:bg-green-600 font-medium transition-colors"
+                  className="px-4 sm:px-6 py-2 sm:py-2.5 bg-must-green text-white rounded-lg hover:bg-green-600 font-medium transition-colors text-sm sm:text-base"
                 >
                   Edit Curriculum
                 </button>

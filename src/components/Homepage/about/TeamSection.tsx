@@ -1,3 +1,5 @@
+'use client'
+
 import { cn } from '@/lib/utils'
 import { Icon } from '@/components/ui'
 import { SectionHeader, AnimatedCard } from '@/components/shared'
@@ -8,7 +10,7 @@ export function TeamSection() {
   const { ref, isIntersecting } = useIntersection()
 
   return (
-    <section ref={ref as React.RefObject<HTMLElement>} className="py-20 bg-gray-50">
+    <section id="team" ref={ref as React.RefObject<HTMLElement>} className="py-20 bg-gray-50">
       <div className="max-w-6xl mx-auto px-4 md:px-8">
         <SectionHeader
           title="Our Stakeholders"
