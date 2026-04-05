@@ -15,7 +15,8 @@ import {
   Shield,
   Settings,
   LogOut,
-  X
+  X,
+  Building2
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -56,6 +57,13 @@ const navigationSections = [
         label: 'User Management',
         icon: Users,
         path: '/admin/admin-user-management',
+        badge: null
+      },
+      {
+        id: 'academic-structure',
+        label: 'Academic Structure',
+        icon: Building2, // Make sure to import { Building2 } from 'lucide-react' at the top
+        path: '/admin/academic-structure',
         badge: null
       },
       {
