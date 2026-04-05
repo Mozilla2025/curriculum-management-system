@@ -11,7 +11,6 @@ export default function AdminLayout({
 }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
 
-  // Auto-open sidebar on desktop
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth >= 1024) {
@@ -28,9 +27,7 @@ export default function AdminLayout({
 
   const handleLogout = async () => {
     try {
-      
       console.log('Logging out...')
-      
       window.location.href = '/admin/login'
     } catch (error) {
       console.error('Logout error:', error)
@@ -39,10 +36,8 @@ export default function AdminLayout({
 
   const handleSearch = (query: string) => {
     console.log('Search query:', query)
-    // Implement search functionality
   }
 
-  // Mock data
   const mockUser = {
     name: 'Admin User',
     email: 'admin@must.ac.ke',
@@ -77,17 +72,15 @@ export default function AdminLayout({
   ]
 
   return (
-    <div className="flex min-h-screen bg-gray-50 overflow-x-hidden">
-      {/* Sidebar */}
+    <div className="flex min-h-screen bg-gray-50">
       <AdminSidebar
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
         onLogout={handleLogout}
       />
 
-      {/* Main Content Area */}
-      <div className="flex-1 flex flex-col lg:ml-64 transition-all duration-300">
-        {/* Header - Fixed at top */}
+      {/* min-w-0 is critical — prevents flex child from overflowing its container */}
+      <div className="flex-1 flex flex-col lg:ml-64 transition-all duration-300 min-w-0">
         <AdminHeader
           onSearchSubmit={handleSearch}
           user={mockUser}
@@ -96,9 +89,9 @@ export default function AdminLayout({
           onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
         />
 
-        {/* Page Content - with top padding for fixed header */}
         <main className="flex-1 overflow-y-auto pt-16">
-          <div className="pt-4 px-6 md:pt-4 md:px-8 max-w-[1820px] mx-auto w-full">
+         
+          <div className="pt-4 px-3 sm:px-4 md:px-6 lg:px-8 max-w-[1820px] mx-auto w-full overflow-x-auto">
             {children}
           </div>
         </main>
