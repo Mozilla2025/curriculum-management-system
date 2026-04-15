@@ -25,15 +25,20 @@ export function useGlobalInterceptor() {
             try {
               const refreshToken = localStorage.getItem('refreshToken');
               if (refreshToken) {
-                const res = await axiosClient.post('/auth/refresh-token', { refreshToken });
-                localStorage.setItem('accessToken', res.data.accessToken);
-                originalRequest.headers.Authorization = `Bearer ${res.data.accessToken}`;
+                const res = await axiosClient.post('/auth/refresh', { refreshToken });
+                const newAccessToken = res.data.data.accessToken;
+                localStorage.setItem('accessToken', newAccessToken);
+                localStorage.setItem('auth_token', newAccessToken);
+                originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
                 return axiosClient(originalRequest);
               }
               throw new Error('No refresh token');
             } catch (refreshError) {
               localStorage.removeItem('accessToken');
+              localStorage.removeItem('auth_token');
               localStorage.removeItem('refreshToken');
+              localStorage.removeItem('user_role');
+              localStorage.removeItem('user_data');
               addToast({
                 type: 'error',
                 title: 'Session Expired',
@@ -83,7 +88,8 @@ export function useGlobalInterceptor() {
 
     const requestInterceptor = axiosClient.interceptors.request.use(
       (config) => {
-        const token = localStorage.getItem('accessToken');
+        // Check both token storage keys for backward compatibility
+        const token = localStorage.getItem('accessToken') || localStorage.getItem('auth_token');
         if (token && config.headers) {
           config.headers.Authorization = `Bearer ${token}`;
         }

@@ -18,7 +18,8 @@ export default function AuthGuard({ children, allowedRoles }: AuthGuardProps) {
 
   useEffect(() => {
     const checkAuth = () => {
-      const token = localStorage.getItem('accessToken');
+      // Support both storage key formats for backward compatibility
+      const token = localStorage.getItem('accessToken') || localStorage.getItem('auth_token');
       
       // 1. Check if token exists
       if (!token) {
@@ -27,17 +28,35 @@ export default function AuthGuard({ children, allowedRoles }: AuthGuardProps) {
       }
 
       try {
-        // 2. Decode the JWT payload to get user details (Role is usually stored here by Spring Boot)
+        // 2. Decode the JWT payload to get user details
         const payload = JSON.parse(atob(token.split('.')[1]));
-        const userRole = payload.role || payload.roles?.[0] || localStorage.getItem('userRole');
+        
+        // Get user role - handle both single role and roles array
+        let userRoles: string[] = [];
+        if (Array.isArray(payload.roles)) {
+          userRoles = payload.roles;
+        } else if (payload.role) {
+          userRoles = [payload.role];
+        } else if (payload.roles?.[0]) {
+          userRoles = [payload.roles[0]];
+        }
 
-        // 3. If the route requires specific roles, check against the user's role
+        // Also check localStorage for backward compatibility
+        const storedRole = localStorage.getItem('user_role');
+        if (storedRole && !userRoles.includes(storedRole)) {
+          userRoles.push(storedRole);
+        }
+
+        // 3. If the route requires specific roles, check against the user's roles
         if (allowedRoles && allowedRoles.length > 0) {
           // Normalize roles for comparison (e.g., 'ROLE_ADMIN' vs 'ADMIN')
-          const normalizedUserRole = userRole?.replace('ROLE_', '').toUpperCase();
-          const hasRequiredRole = allowedRoles.some(
-            role => role.replace('ROLE_', '').toUpperCase() === normalizedUserRole
+          const normalizedUserRoles = userRoles.map(role => 
+            role.replace('ROLE_', '').toUpperCase()
           );
+          const hasRequiredRole = allowedRoles.some(requiredRole => {
+            const normalizedRequired = requiredRole.replace('ROLE_', '').toUpperCase();
+            return normalizedUserRoles.includes(normalizedRequired);
+          });
 
           if (!hasRequiredRole) {
             addToast({

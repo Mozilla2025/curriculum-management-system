@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import AuthGuard from '@/components/auth/AuthGuard'
 import { AdminHeader } from '../../components/admin/AdminHeader'
 import { AdminSidebar } from '../../components/admin/AdminSidebar'
 
@@ -72,31 +73,32 @@ export default function AdminLayout({
   ]
 
   return (
-    
-    <div className="flex min-h-screen bg-gray-50">
-      <AdminSidebar
-        isOpen={isSidebarOpen}
-        onClose={() => setIsSidebarOpen(false)}
-        onLogout={handleLogout}
-      />
-
-      {/* min-w-0 is critical — prevents flex child from overflowing its container */}
-      <div className="flex-1 flex flex-col lg:ml-64 transition-all duration-300 min-w-0">
-        <AdminHeader
-          onSearchSubmit={handleSearch}
-          user={mockUser}
-          systemHealth={98.5}
-          notifications={mockNotifications}
-          onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
+    <AuthGuard allowedRoles={['ADMIN']}>
+      <div className="flex min-h-screen bg-gray-50">
+        <AdminSidebar
+          isOpen={isSidebarOpen}
+          onClose={() => setIsSidebarOpen(false)}
+          onLogout={handleLogout}
         />
 
-        <main className="flex-1 overflow-y-auto pt-16">
-         
-          <div className="pt-4 px-3 sm:px-4 md:px-6 lg:px-8 max-w-[1820px] mx-auto w-full overflow-x-auto">
-            {children}
-          </div>
-        </main>
+        {/* min-w-0 is critical — prevents flex child from overflowing its container */}
+        <div className="flex-1 flex flex-col lg:ml-64 transition-all duration-300 min-w-0">
+          <AdminHeader
+            onSearchSubmit={handleSearch}
+            user={mockUser}
+            systemHealth={98.5}
+            notifications={mockNotifications}
+            onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
+          />
+
+          <main className="flex-1 overflow-y-auto pt-16">
+           
+            <div className="pt-4 px-3 sm:px-4 md:px-6 lg:px-8 max-w-[1820px] mx-auto w-full overflow-x-auto">
+              {children}
+            </div>
+          </main>
+        </div>
       </div>
-    </div>
+    </AuthGuard>
   )
 }

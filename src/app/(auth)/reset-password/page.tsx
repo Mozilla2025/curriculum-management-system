@@ -1,6 +1,4 @@
 
-'use client'
-
 import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import {
@@ -14,6 +12,7 @@ import {
   resetPasswordBrandingContent,
   resetSuccessBrandingContent,
 } from '@/config/auth'
+import { authService } from '@/services/auth.service'
 import type { ResetPasswordView } from '@/types/auth'
 
 
@@ -23,16 +22,33 @@ function ResetPasswordContent() {
   const email = searchParams.get('email') ?? ''
 
   const [view, setView] = useState<ResetPasswordView>('form')
+  const [isValidating, setIsValidating] = useState(true)
 
-  // Validate token presence on mount
+  // Validate token on mount
   useEffect(() => {
-    if (!token) setView('invalid-token')
+    const validateToken = async () => {
+      if (!token) {
+        setView('invalid-token')
+        setIsValidating(false)
+        return
+      }
+
+      try {
+        await authService.validatePasswordToken(token)
+        setView('form')
+      } catch (err) {
+        setView('invalid-token')
+      } finally {
+        setIsValidating(false)
+      }
+    }
+
+    validateToken()
   }, [token])
 
  
   const handleSubmit = async (token: string, newPassword: string) => {
     await new Promise((res) => setTimeout(res, 1000))
-    
   }
 
   const brandingProps =
@@ -42,9 +58,15 @@ function ResetPasswordContent() {
 
   return (
     <AuthLayout brandingPanel={<AuthBrandingPanel {...brandingProps} />}>
-      {view === 'invalid-token' && <InvalidTokenMessage />}
+      {isValidating && (
+        <div className="flex items-center justify-center py-8">
+          <div className="text-center text-gray-500">Validating reset link...</div>
+        </div>
+      )}
 
-      {view === 'form' && (
+      {!isValidating && view === 'invalid-token' && <InvalidTokenMessage />}
+
+      {!isValidating && view === 'form' && (
         <ResetPasswordForm
           token={token}
           email={email}

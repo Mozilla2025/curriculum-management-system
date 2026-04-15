@@ -10,46 +10,53 @@ import { PasswordInput } from './PasswordInput'
 import { AuthSubmitButton } from './AuthSubmitButton'
 import { authBranding } from '@/config/auth'
 import type { LoginFormData } from '@/types/auth'
+import type { LoginError } from '@/hooks/useLogin'
 
 interface LoginFormProps {
   onSubmit: (data: LoginFormData) => Promise<void>
+  isLoading?: boolean
+  error?: LoginError | null
 }
 
-export function LoginForm({ onSubmit }: LoginFormProps) {
+export function LoginForm({ onSubmit, isLoading = false, error }: LoginFormProps) {
   const [formData, setFormData] = useState<LoginFormData>({
     username: '',
     password: '',
     rememberMe: false,
   })
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState('')
+  const [validationError, setValidationError] = useState('')
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target
     setFormData((prev) => ({ ...prev, [name]: type === 'checkbox' ? checked : value }))
-    if (error) setError('')
+    // Clear validation error when user starts typing
+    if (validationError) setValidationError('')
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!formData.username.trim() || !formData.password.trim()) {
-      setError('Please fill in all required fields')
+    
+    // Validation
+    if (!formData.username.trim()) {
+      setValidationError('Please enter your username')
       return
     }
-    setIsLoading(true)
-    setError('')
+    
+    if (!formData.password.trim()) {
+      setValidationError('Please enter your password')
+      return
+    }
+    
+    setValidationError('')
     try {
       await onSubmit(formData)
-    } catch (err: any) {
-      const msg = err?.message ?? ''
-      if (msg.includes('credentials')) setError('Invalid username or password. Please try again.')
-      else if (msg.includes('network') || msg.includes('fetch')) setError('Network error. Please check your connection.')
-      else if (msg.includes('server')) setError('Server error. Please try again later.')
-      else setError(msg || 'Login failed. Please try again.')
-    } finally {
-      setIsLoading(false)
+    } catch (err) {
+      // Error is handled by the hook and passed as prop
     }
   }
+
+  // Combine validation error and API error
+  const displayError = validationError || error?.message
 
   return (
     <>
@@ -59,7 +66,8 @@ export function LoginForm({ onSubmit }: LoginFormProps) {
         Sign In
       </h2>
 
-      <AuthErrorMessage message={error} />
+      {/* Display error message */}
+      {displayError && <AuthErrorMessage message={displayError} />}
 
       <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-6">
         {/* Username */}
@@ -82,9 +90,9 @@ export function LoginForm({ onSubmit }: LoginFormProps) {
               'bg-white placeholder-gray-400 transition-all duration-150',
               'focus:outline-none focus:ring-[3px] focus:ring-must-green/15 focus:border-must-green',
               'disabled:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60',
-              error && !formData.username.trim()
+              displayError
                 ? 'border-red-400 bg-red-50'
-                : 'border-gray-300'
+                : 'border-gray-300 hover:border-gray-400'
             )}
           />
         </div>
@@ -99,7 +107,7 @@ export function LoginForm({ onSubmit }: LoginFormProps) {
           placeholder="Enter your password"
           disabled={isLoading}
           autoComplete="current-password"
-          hasError={!!(error && !formData.password.trim())}
+          hasError={!!displayError}
         />
 
         {/* Options row */}
