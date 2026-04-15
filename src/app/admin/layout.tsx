@@ -72,6 +72,7 @@ export default function AdminLayout({
   ]
 
   return (
+    
     <div className="flex min-h-screen bg-gray-50">
       <AdminSidebar
         isOpen={isSidebarOpen}
