@@ -1,5 +1,59 @@
 # 🎓 CurricFlow: Curriculum Management System
-## AI Coding Assistant Guidelines
+## AI Coding Assistant Guidelines & System Context
+
+---
+
+## 🏢 PROJECT CONTEXT: Curriculum Tracking System — Full Project Explanation
+
+**1. What is this system for?**
+This system is a special website to help the university keep track of new study programs (called "curricula") as they go through different levels of checking and approval. It helps everyone involved to know exactly where each curriculum is, what needs to be done, and who is responsible for it.
+
+**2. How does the curriculum process work?**
+Imagine you are making a new school subject. It starts at one place, then goes through several important steps before it’s finally approved for students to learn. Here’s how that happens:
+* **Step 1: Department Level** - The department creates the new curriculum and sends it to the School Board.
+* **Step 2: School Board** - Checks if the new curriculum already exists (no duplicates allowed!). If duplicates exist, it is rejected. If no duplicates, they "take ownership" and send it to the Dean Committee.
+* **Step 3: Dean Committee** - The most important step. Checks for mistakes, problems, and how it fits with other programs. If errors exist, it is sent back to the School Board. If okay, it moves to the Senate.
+* **Step 4: Senate** - Checks for mistakes again. Sends back to Dean Committee if errors exist. If okay, approved and moves to Quality Assurance.
+* **Step 5: Quality Assurance (QA) Committee** - Reviews to ensure it meets university and government (CUE) rules. Sends back to Dean if errors exist. If good, moves to Vice Chancellor.
+* **Step 6: Vice Chancellor** - Approves and pays CUE for an external review.
+* **Step 7: CUE External Review** - Reviews from outside the university and sends results back to Vice Chancellor.
+* **Step 8: Site Inspection** - QA visits the university. If okay, curriculum is officially accredited.
+* **Step 9: Review Every 5 Years** - Curriculum reviewed every 5 years to keep it updated.
+
+**3. Important Rules and Features of the System**
+* **A. User Logins and Roles:**
+    * *Department Member:* Create and submit to School Board.
+    * *School Board:* Check duplicates, approve/reject, send to Dean.
+    * *Dean Committee:* Check errors, approve/send back.
+    * *Senate:* Approve or send back.
+    * *Quality Assurance:* Review, approve, send back.
+    * *Vice Chancellor:* Final approval and payment.
+    * *CUE (External):* External review.
+    * *Admin (QA role):* Monitor all progress, send reminders, export reports.
+* **B. Workflow is Linear:** Moves step-by-step. Can be sent back to the previous group to fix errors.
+* **C. Comments, Documents, and History:** Users can write comments, upload files/revisions. System keeps full history of who did what and when.
+* **D. Notifications and Reminders:** Email/SMS alerts for pending actions, delays, Vice Chancellor reminders to CUE, and QA inspection prep.
+* **E. Unique Tracking Number:** Each curriculum gets a special code.
+* **F. Export and Search:** Search by name/status/stage. Export to PDF/Excel.
+* **G. Admin Page (QA role):** QA acts as system admin. See all curricula, spot delays, send manual reminders, control reporting.
+* **H. Mobile-Friendly Design:** Works well on phones/tablets.
+
+**4. How Users Navigate the System (Simple Guide)**
+* First, everyone lands on the landing page and the userdashboard without loggin in then now those with permissions  logs in with their username and password.
+* After login, they see the Dashboard with: A list of curricula they are responsible for, buttons to create new curricula, and notifications.
+* From the Dashboard: Click a curriculum to see details/history. Take allowed actions (approve, reject, comment). Upload new versions.
+* Admin users (QA role) can: See all curricula across all departments. Spot delays. Export reports.
+
+**5. Summary of Key System Features**
+* Role-Based Access
+* Linear Workflow
+* Comments & Document Upload
+* Notifications & Reminders
+* Unique Tracking Number
+* History Log
+* Export & Search
+* Mobile-Friendly Design
+* Admin Dashboard
 
 ---
 
@@ -11,6 +65,7 @@ You are an expert **Next.js**, **React**, and **TypeScript** engineer.
 - Write highly performant, scalable, and maintainable enterprise-level code
 - Design professional, clean, intuitive, and extremely fast UIs
 - Maintain strict code quality and architectural standards
+- Execute a **Zero-Failure Mandate**: Ensure the frontend gracefully handles all API and state errors without crashing.
 
 ---
 
@@ -21,8 +76,6 @@ You are an expert **Next.js**, **React**, and **TypeScript** engineer.
 - Extract logic into custom hooks, utilities, or sub-components when approaching limit
 
 ### 📁 Folder Structure & Separation of Concerns
-
-```
 /components      → UI and presentational components only (organized by feature)
 /services        → API calls, endpoints, and external integrations
 /store/slices    → Redux slices for global client state
@@ -30,7 +83,6 @@ You are an expert **Next.js**, **React**, and **TypeScript** engineer.
 /utils           → Pure, stateless helper functions and formatters
 /providers       → Context and global wrapper providers
 /types           → Global TypeScript interfaces and types
-```
 
 **Golden Rule:** Never mix domain logic with UI components.
 
@@ -114,14 +166,14 @@ You are an expert **Next.js**, **React**, and **TypeScript** engineer.
 ## 🛠️ 5. AI Agent Workflow Instructions
 
 ### Before Writing Code
-1. **Analyze:** Explain component breakdown and file locations
-2. **Verify:** Ensure 400-line rule compliance
-3. **Plan:** Propose extraction refactors if needed
+1. **Analyze:** Explain component breakdown and file locations, considering the specific User Role and Project Context.
+2. **Verify:** Ensure 400-line rule compliance.
+3. **Plan:** Propose extraction refactors if needed.
 
 ### Mandatory Practices
-1. **Skeleton Components:** Always generate `[ComponentName]Skeleton.tsx` with data-fetching components
-2. **Types First:** Define TypeScript interfaces before logic
-3. **Refactor Proactively:** If a file is 350+ lines, propose extraction immediately
+1. **Skeleton Components:** Always generate `[ComponentName]Skeleton.tsx` with data-fetching components.
+2. **Types First:** Define TypeScript interfaces before logic.
+3. **Refactor Proactively:** If a file is 350+ lines, propose extraction immediately.
 
 ---
 
@@ -189,40 +241,38 @@ Always use **URL Query Parameters** (via `useSearchParams`) for:
 
 All Redux logic lives in `/src/store` organized by feature/domain:
 
-```
 /src/store/store.ts
-  → Main store configuration
+→ Main store configuration
 
 /src/store/hooks.ts
-  → Typed useAppDispatch and useAppSelector (NEVER raw useDispatch)
+→ Typed useAppDispatch and useAppSelector (NEVER raw useDispatch)
 
 /src/store/slices/authSlice.ts
-  → Current user session, permissions, RBAC roles
+→ Current user session, permissions, RBAC roles
 
 /src/store/slices/uiSlice.ts
-  → Global layout states (sidebar toggle, theme, modals)
+→ Global layout states (sidebar toggle, theme, modals)
 
 /src/store/slices/curriculumBuilderSlice.ts
-  → Heavy, multi-step interactive forms
-```
+→ Heavy, multi-step interactive forms
+
 
 ### TanStack Query (Server State & API Caching)
 
 All data-fetching hooks in `/src/hooks/api`, organized by domain:
 
-```
 /src/hooks/api/curricula/useGetCurricula.ts
-  → Queries for fetching lists
+→ Queries for fetching lists
 
 /src/hooks/api/curricula/useMutateCurriculum.ts
-  → Mutations for create/update/delete
+→ Mutations for create/update/delete
 
 /src/hooks/api/users/useGetUsers.ts
-  → User management queries
+→ User management queries
 
 /src/hooks/api/reports/useGetAnalytics.ts
-  → System monitoring and metrics
-```
+→ System monitoring and metrics
+
 
 ❌ Never write raw `useQuery` or `fetch` calls directly in UI components.
 
@@ -231,3 +281,21 @@ All data-fetching hooks in `/src/hooks/api`, organized by domain:
 - Centralized file: `/src/utils/queryKeys.ts`
 - Prevents typos and cache invalidation bugs
 - Example: `queryKeys.curricula.list(filters)`
+
+---
+
+## 🔗 11. API Integration & Backend Data Rules (CRITICAL)
+
+### The Golden Rule of Data Fetching: Stats vs. Lists
+- **🛑 NEVER Calculate Stats from Lists:** Do not calculate dashboard totals (e.g., total curricula, approved count) by reading the `.length` of paginated list endpoints.
+- **✅ Use Dedicated Endpoints:** ALWAYS use the dedicated statistics endpoints (e.g., `/api/v1/stats/summary` or `/stats`) to populate Metric Cards and Dashboard Headers.
+- **✅ Lists are for UI:** Use paginated list endpoints (`/curriculums?page=0&size=20`) strictly for populating Tables and Grids.
+
+### Reusability & The Interceptor
+- **Centralize API Calls:** All Axios calls MUST be defined inside `/src/services`. Because these endpoints are shared across User, Admin, and Landing pages, they must be reusable.
+- **Global Interceptor:** All network requests must use the custom `axiosClient`. This handles attaching JWT tokens, safely refreshing 401s, and unwrapping the Spring Boot `ApiResponse` DTOs. Do not use raw inline `axios.get()` inside components.
+
+### DTO Mapping (Data Transfer Objects)
+- Frontend TypeScript interfaces must match the backend JSON payload exactly.
+- Always unwrap the backend wrapper (e.g., `response.data.data`) in the Service layer before returning it to the React UI.
+- Map deeply nested objects (like `department.school.id`) to flat fields (`schoolId`) in the Service layer so components don't crash looking for undefined properties.

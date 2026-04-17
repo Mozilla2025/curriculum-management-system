@@ -10,15 +10,16 @@ import { PasswordInput } from './PasswordInput'
 import { AuthSubmitButton } from './AuthSubmitButton'
 import { authBranding } from '@/config/auth'
 import type { LoginFormData } from '@/types/auth'
-import type { LoginError } from '@/hooks/useLogin'
+import type { LoginError } from '@/hooks/auth'
 
 interface LoginFormProps {
   onSubmit: (data: LoginFormData) => Promise<void>
   isLoading?: boolean
   error?: LoginError | null
+  onRetry?: () => Promise<void>
 }
 
-export function LoginForm({ onSubmit, isLoading = false, error }: LoginFormProps) {
+export function LoginForm({ onSubmit, isLoading = false, error, onRetry }: LoginFormProps) {
   const [formData, setFormData] = useState<LoginFormData>({
     username: '',
     password: '',
@@ -35,6 +36,7 @@ export function LoginForm({ onSubmit, isLoading = false, error }: LoginFormProps
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    console.log('Form submitted', { formData, isLoading })
     
     // Validation
     if (!formData.username.trim()) {
@@ -49,8 +51,10 @@ export function LoginForm({ onSubmit, isLoading = false, error }: LoginFormProps
     
     setValidationError('')
     try {
+      console.log('Calling onSubmit with:', formData)
       await onSubmit(formData)
     } catch (err) {
+      console.error('Submit error:', err)
       // Error is handled by the hook and passed as prop
     }
   }
@@ -133,14 +137,35 @@ export function LoginForm({ onSubmit, isLoading = false, error }: LoginFormProps
         </div>
 
         {/* Submit */}
-        <div className="mt-3">
+        <div className="mt-3 flex flex-col gap-3">
           <AuthSubmitButton
             isLoading={isLoading}
             loadingText="Signing In..."
             icon={<LogIn className="w-5 h-5" />}
+            disabled={isLoading || (error?.type === 'network')}
           >
             Sign In
           </AuthSubmitButton>
+
+          {/* Retry button for network errors */}
+          {error?.type === 'network' && onRetry && (
+            <button
+              type="button"
+              onClick={onRetry}
+              disabled={isLoading}
+              className={cn(
+                'w-full py-3.5 px-4 rounded-md font-medium text-base',
+                'border-2 border-must-teal text-must-teal',
+                'transition-all duration-200',
+                'hover:bg-must-teal/5 hover:shadow-md',
+                'active:scale-95',
+                'disabled:opacity-60 disabled:cursor-not-allowed',
+                'focus-visible:outline-2 focus-visible:outline-must-teal focus-visible:outline-offset-2'
+              )}
+            >
+              Try Again
+            </button>
+          )}
         </div>
       </form>
 

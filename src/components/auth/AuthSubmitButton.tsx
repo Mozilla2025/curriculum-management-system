@@ -23,11 +23,16 @@ export function AuthSubmitButton({
   type = 'submit',
   onClick,
 }: AuthSubmitButtonProps) {
+  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    console.log('Button clicked', { isLoading, disabled, type })
+    onClick?.()
+  }
+
   return (
     <button
       type={type}
       disabled={disabled || isLoading}
-      onClick={onClick}
+      onClick={handleClick}
       className={cn(
         'w-full flex items-center justify-center gap-2',
         'bg-must-green text-white font-medium text-base',

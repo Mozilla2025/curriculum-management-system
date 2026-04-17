@@ -52,13 +52,36 @@ const USER_ENDPOINTS = {
  */
 export async function login(credentials: LoginRequest): Promise<LoginResponse> {
   try {
+    console.log('🔐 Attempting login with:', { username: credentials.username, baseURL: process.env.NEXT_PUBLIC_API_URL })
     const response = await axiosClient.post<{ data: LoginResponse }>(
       AUTH_ENDPOINTS.LOGIN,
       credentials
     )
+    console.log('✅ Login successful! Response:', response.data.data)
     return response.data.data
   } catch (error: any) {
-    const message = error.response?.data?.message || 'Login failed'
+    console.error('❌ Login failed. Error details:', {
+      hasResponse: !!error.response,
+      status: error.response?.status,
+      data: error.response?.data,
+      message: error.message,
+      code: error.code,
+      isAxiosError: error.isAxiosError
+    })
+    
+    // Check if backend is running but returned an error
+    if (error.response) {
+      const status = error.response.status
+      const message = error.response?.data?.message || 'Login failed'
+      
+      // Create error object with status code
+      const err: any = new Error(message)
+      err.statusCode = status
+      throw err
+    }
+    
+    // Network/timeout errors
+    const message = error.message || 'Login failed'
     throw new Error(message)
   }
 }

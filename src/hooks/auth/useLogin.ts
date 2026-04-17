@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useState } from 'react'
+import { useCallback, useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { authService } from '@/services/auth.service'
 import {
@@ -22,6 +22,7 @@ interface UseLoginReturn {
   error: LoginError | null
   login: (credentials: LoginFormData) => Promise<void>
   clearError: () => void
+  retryLogin: (credentials: LoginFormData) => Promise<void>
 }
 
 /**
@@ -34,6 +35,14 @@ export function useLogin(): UseLoginReturn {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<LoginError | null>(null)
+
+  // Check existing tokens on mount
+  useEffect(() => {
+    const existingToken = typeof window !== 'undefined' ? localStorage.getItem('accessToken') || localStorage.getItem('auth_token') : null
+    if (existingToken) {
+      console.warn('⚠️  Existing auth token found in localStorage:', existingToken.substring(0, 20) + '...')
+    }
+  }, [])
 
   const login = useCallback(
     async (credentials: LoginFormData) => {
@@ -97,40 +106,43 @@ export function useLogin(): UseLoginReturn {
           router.push('/user/dashboard')
         }
       } catch (err: any) {
-        const errorMessage = err?.message || 'Login failed. Please check your credentials.'
+        console.error('Login error details:', {
+          message: err?.message,
+          statusCode: err?.statusCode,
+          isNetworkError: err?.isNetworkError,
+          fullError: err
+        })
         
-        // Determine error type
+        let errorMessage = err?.message || 'Login failed. Please check your credentials.'
         let errorType: LoginError['type'] = 'general'
+
+        // Check for different error types
+        const statusCode = err?.statusCode
         
-        if (
-          errorMessage.includes('network') ||
-          errorMessage.includes('fetch') ||
-          errorMessage.includes('Failed to fetch') ||
-          errorMessage.includes('Unable to connect')
-        ) {
+        if (err?.isNetworkError || err?.message?.includes('Server is unreachable') || err?.message?.includes('server is running') || err?.message?.includes('timeout')) {
           errorType = 'network'
-        } else if (
-          errorMessage.includes('server') ||
-          errorMessage.includes('500') ||
-          errorMessage.includes('timeout')
-        ) {
-          errorType = 'server'
-        } else if (
-          errorMessage.includes('credentials') ||
-          errorMessage.includes('Unauthorized') ||
-          errorMessage.includes('invalid') ||
-          errorMessage.includes('401')
-        ) {
+        } else if (statusCode === 400) {
           errorType = 'credentials'
+          errorMessage = 'Invalid username or password. Please try again.'
+        } else if (statusCode === 401) {
+          errorType = 'credentials'
+          errorMessage = 'Unauthorized. Please check your credentials.'
+        } else if (statusCode >= 500) {
+          errorType = 'server'
+          errorMessage = 'Server error. Please try again later.'
+        } else if (statusCode === 0 || err?.message?.includes('Cannot reach server')) {
+          errorType = 'network'
+        } else if (err?.message?.includes('validation')) {
+          errorType = 'validation'
         }
+
+        console.log('Setting error:', { errorMessage, errorType })
 
         setError({
           message: errorMessage,
           type: errorType,
+          code: err?.code || statusCode,
         })
-
-        // Clear any partial auth data
-        clearAuthToken()
       } finally {
         setIsLoading(false)
       }
@@ -142,10 +154,19 @@ export function useLogin(): UseLoginReturn {
     setError(null)
   }, [])
 
+  const retryLogin = useCallback(
+    async (credentials: LoginFormData) => {
+      // Retry with a fresh attempt
+      await login(credentials)
+    },
+    [login]
+  )
+
   return {
     isLoading,
     error,
     login,
     clearError,
+    retryLogin,
   }
 }
