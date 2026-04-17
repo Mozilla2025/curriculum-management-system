@@ -61,3 +61,21 @@ export interface MetricCardConfig {
   bgColorClass: string
   changeType: 'up' | 'down'
 }
+
+/**
+ * Stats Summary Response
+ * Contains high-level system statistics
+ */
+export interface StatsSummary {
+  totalSchools: number
+  totalDepartments: number
+  totalCurriculums: number
+}
+
+/**
+ * API Response wrapper for stats endpoint
+ */
+export interface StatsSummaryResponse {
+  message: string
+  data: StatsSummary
+}

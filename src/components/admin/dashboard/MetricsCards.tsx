@@ -3,6 +3,7 @@
 import React, { useState } from 'react'
 import { BookOpen, Clock, CheckCircle, TrendingUp, ChevronDown, ChevronUp } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { useGetStatsSummary } from '@/hooks/api/stats'
 
 interface CurriculumStats {
   total: number
@@ -23,10 +24,11 @@ interface MetricsCardsProps {
   onRefreshStats: () => void
 }
 
-export function MetricsCards({ curriculumStats, statsLoading }: MetricsCardsProps) {
+export function MetricsCards({ curriculumStats }: MetricsCardsProps) {
   const [showInProgressBreakdown, setShowInProgressBreakdown] = useState(false)
+  const { data: statsSummary, isPending: statsSummaryPending } = useGetStatsSummary()
 
-  if (statsLoading) {
+  if (statsSummaryPending && !statsSummary) {
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
         {[1, 2, 3, 4].map((i) => (
@@ -48,18 +50,21 @@ export function MetricsCards({ curriculumStats, statsLoading }: MetricsCardsProp
     )
   }
 
+  // Use totalCurriculums from API instead of local state
+  const totalCurriculumsFromAPI = statsSummary?.totalCurriculums || 0
+  
   const approvalRate = curriculumStats.total > 0
     ? Math.round((curriculumStats.approved / curriculumStats.total) * 100)
     : 0
 
   const overdueCount = curriculumStats.overdue || 0
-  const monthlyIncrease = Math.round(curriculumStats.total * 0.08)
+  const monthlyIncrease = Math.round(totalCurriculumsFromAPI * 0.08)
 
   const metrics = [
     {
       id: 1,
       title: 'Total Curricula',
-      value: curriculumStats.total.toLocaleString(),
+      value: totalCurriculumsFromAPI.toLocaleString(),
       trend: `+${monthlyIncrease} this month`,
       icon: BookOpen,
       color: 'bg-must-green',

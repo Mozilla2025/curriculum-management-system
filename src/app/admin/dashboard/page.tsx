@@ -245,6 +245,8 @@ export default function AdminDashboardOverview() {
           </div>
         </div>
 
+        {/* System Statistics Summary */}
+
         {/* Key Metrics Cards */}
         <MetricsCards
           curriculumStats={curriculumStats}
