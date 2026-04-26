@@ -128,6 +128,20 @@ You are an expert **Next.js**, **React**, and **TypeScript** engineer.
 - **Skeleton loaders are MANDATORY** for all async data fetching
 - Skeletons must mimic exact shape and layout to prevent CLS (Cumulative Layout Shift)
 
+### Skeleton Gate Rule (TanStack Query) 🚨 CRITICAL
+- **NEVER gate a skeleton on local `useState` loading flags** (e.g., `isLoading`, `statsLoading`) passed down from a parent page component.
+- Local `useState` **always resets to its initial value on every mount**. Because Next.js unmounts page components on navigation, a flag initialised as `useState(true)` will be `true` again every time the user returns to the page — making the skeleton flash on every visit even when TanStack Query already has fresh cached data.
+- **✅ ALWAYS gate skeletons exclusively on TanStack Query's `isPending` flag combined with a data-absence check:**
+  ```tsx
+  // CORRECT — skeleton only on the very first load (no cached data)
+  if (isPending && !data) return <Skeleton />
+
+  // WRONG — flashes skeleton on every navigation return
+  if (localLoadingState || isPending) return <Skeleton />
+  ```
+- `isPending` is `false` the moment TanStack Query has any cached data for that query key, so returning to a page always renders data instantly.
+- Local loading flags (from `useState`) are still valid for button states (e.g., disabling a Refresh button while re-fetching) — just never use them to control skeleton visibility.
+
 ### User Experience (UX)
 - ✅ Clear focus, hover, and active states on interactive elements
 - ✅ Full accessibility (a11y): ARIA attributes, keyboard navigation
