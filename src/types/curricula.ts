@@ -5,6 +5,7 @@ export interface Curriculum {
   title: string
   code: string
   status: CurriculumStatus
+  currentStageIndex?: number
   schoolId: string | number
   schoolName?: string
   programId: string

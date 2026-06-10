@@ -1,8 +1,9 @@
 'use client'
 
 import { useCallback, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
-import type { CurriculumTracking, TrackingViewMode } from '@/types/tracking'
+import type { CurriculumTracking } from '@/types/tracking'
 import { TRACKING_STAGES } from '@/lib/tracking/constants'
 import { useTrackingPage } from '@/hooks/tracking/useTrackingPage'
 import { mockCurriculumTrackingData, mockTrackingStats } from '@/lib/mock-data'
@@ -10,17 +11,9 @@ import { mockCurriculumTrackingData, mockTrackingStats } from '@/lib/mock-data'
 import { TrackingHeader }            from '@/components/admin/curriculum-tracking/header/TrackingHeader'
 import { TrackingFilters }           from '@/components/admin/curriculum-tracking/filters/TrackingFilters'
 import { CurriculumWorkflowSelector } from '@/components/admin/curriculum-tracking/workflow/CurriculumWorkflowSelector'
-import { TrackingTable }             from '@/components/admin/curriculum-tracking/table/TrackingTable'
 import { TrackingNotificationBanner } from '@/components/admin/curriculum-tracking/shared/TrackingNotificationBanner'
 import { DocumentViewer }            from '@/components/admin/curriculum-tracking/shared/DocumentViewer'
-import { 
-  TrackingPageSkeleton, 
-  TrackingHeaderSkeleton, 
-  TrackingStatsSkeleton, 
-  TrackingFiltersSkeleton, 
-  TrackingTableSkeleton 
-} from '@/components/admin/curriculum-tracking/shared/TrackingSkeletons'
-import { StageDetailsModal }         from '@/components/admin/curriculum-tracking/modals/StageDetailsModal'
+import { TrackingPageSkeleton } from '@/components/admin/curriculum-tracking/shared/TrackingSkeletons'
 import { DocumentUploadModal }       from '@/components/admin/curriculum-tracking/modals/DocumentUploadModal'
 import { NotesModal }                from '@/components/admin/curriculum-tracking/modals/NotesModal'
 import { InitiateCurriculumModal }   from '@/components/admin/curriculum-tracking/modals/InitiateCurriculumModal'
@@ -40,6 +33,8 @@ async function mockLoadStats() {
 }
 
 export function CurriculumTrackingPageClient() {
+  const router = useRouter()
+
   const {
     isLoading, setIsLoading, isActionLoading, setIsActionLoading,
     error, setError, viewMode, setViewMode,
@@ -70,7 +65,6 @@ export function CurriculumTrackingPageClient() {
   }, [])
 
   // ─── View mode helpers ─────────────────────────────────────────────────────
-  const handleViewMode        = useCallback((mode: TrackingViewMode) => setViewMode(mode), [setViewMode])
   const handleShowMyInitiated = useCallback(() => setViewMode('my-initiated'), [setViewMode])
   const handleShowMyAssigned  = useCallback(() => setViewMode('my-assigned'), [setViewMode])
 
@@ -134,8 +128,8 @@ export function CurriculumTrackingPageClient() {
 
   // ─── Modal openers ─────────────────────────────────────────────────────────
   const handleViewDetails = useCallback((c: CurriculumTracking) => {
-    setSelectedCurriculum(c); openModal('stageDetails', c)
-  }, [openModal, setSelectedCurriculum])
+    router.push(`/admin/admin-curriculum-tracking/${c.id}`)
+  }, [router])
 
   const handleOpenDocumentUpload = useCallback((c: CurriculumTracking, stageKey: string) => {
     setSelectedCurriculum({ ...c, selectedStage: stageKey })
@@ -244,7 +238,6 @@ export function CurriculumTrackingPageClient() {
         trackingCount={filteredCurricula.length}
         onRefresh={handleRefresh}
         onInitiateCurriculum={() => openModal('initiateCurriculum')}
-        onViewMode={handleViewMode}
         onShowMyInitiated={handleShowMyInitiated}
         onShowMyAssigned={handleShowMyAssigned}
         onShowBySchool={handleShowBySchool}
@@ -314,46 +307,20 @@ export function CurriculumTrackingPageClient() {
             onClearFilters={clearFilters}
           />
 
-          {viewMode === 'workflow' ? (
-            <CurriculumWorkflowSelector
-              curricula={filteredCurricula}
-              isLoading={isActionLoading}
-              onStageAction={handleStageAction}
-              onViewDetails={handleViewDetails}
-              onUploadDocument={handleOpenDocumentUpload}
-              onAddNotes={handleOpenNotes}
-              onEditTracking={(c: CurriculumTracking) => openModal('editTracking', c)}
-              onAssignTracking={(c: CurriculumTracking) => openModal('assignTracking', c)}
-              onToggleStatus={(c: CurriculumTracking) => openModal('statusManagement', c)}
-            />
-          ) : (
-            <TrackingTable
-              curricula={filteredCurricula}
-              isLoading={isActionLoading}
-              currentViewMode={viewMode}
-              currentDataSource={currentDataSource}
-              onStageAction={handleStageAction}
-              onViewDetails={handleViewDetails}
-              onEditTracking={(c) => openModal('editTracking', c)}
-              onAssignTracking={(c) => openModal('assignTracking', c)}
-              onToggleStatus={(c) => openModal('statusManagement', c)}
-            />
-          )}
+          <CurriculumWorkflowSelector
+            curricula={filteredCurricula}
+            isLoading={isActionLoading}
+            onStageAction={handleStageAction}
+            onUploadDocument={handleOpenDocumentUpload}
+            onAddNotes={handleOpenNotes}
+            onEditTracking={(c: CurriculumTracking) => openModal('editTracking', c)}
+            onAssignTracking={(c: CurriculumTracking) => openModal('assignTracking', c)}
+            onToggleStatus={(c: CurriculumTracking) => openModal('statusManagement', c)}
+          />
         </>
       )}
 
       {/* ─── Modals ─────────────────────────────────────────────────────── */}
-      {modals.stageDetails && selectedCurriculum && (
-        <StageDetailsModal
-          curriculum={selectedCurriculum}
-          onClose={() => closeModal('stageDetails')}
-          onStageAction={handleStageAction}
-          onUploadDocument={() => { closeModal('stageDetails'); openModal('documentUpload') }}
-          onAddNotes={() => { closeModal('stageDetails'); openModal('notes') }}
-          onDownloadDocument={handleDownloadDocument}
-        />
-      )}
-
       {modals.documentUpload && selectedCurriculum && (
         <DocumentUploadModal
           curriculum={selectedCurriculum}

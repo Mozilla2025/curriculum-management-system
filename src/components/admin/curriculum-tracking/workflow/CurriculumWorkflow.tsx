@@ -11,7 +11,6 @@ interface Props {
   curricula: CurriculumTracking[]
   isLoading: boolean
   onStageAction: (id: string | number, stageKey: string, action: string, payload?: { feedback?: string; returnToStage?: string | null }) => void
-  onViewDetails: (c: CurriculumTracking) => void
   onUploadDocument: (c: CurriculumTracking, stageKey: string) => void
   onAddNotes: (c: CurriculumTracking, stageKey: string) => void
   onEditTracking: (c: CurriculumTracking) => void
@@ -58,7 +57,7 @@ function ProgressMap({ curriculum }: { curriculum: CurriculumTracking }) {
 }
 
 export function CurriculumWorkflowCard({
-  curriculum, onStageAction, onViewDetails, onUploadDocument, onAddNotes,
+  curriculum, onStageAction, onUploadDocument, onAddNotes,
   onEditTracking, onAssignTracking, onToggleStatus,
 }: Props & { curriculum: CurriculumTracking }) {
   const [expandedStage, setExpandedStage] = useState<string | null>(curriculum.currentStage)
@@ -136,7 +135,6 @@ export function CurriculumWorkflowCard({
                 isExpanded={expandedStage === stage.key}
                 onToggleExpand={() => setExpandedStage(expandedStage === stage.key ? null : stage.key)}
                 onStageAction={onStageAction}
-                onViewDetails={onViewDetails}
                 onUploadDocument={onUploadDocument}
                 onAddNotes={onAddNotes}
                 onEditTracking={onEditTracking}

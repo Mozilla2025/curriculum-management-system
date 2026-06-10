@@ -15,25 +15,25 @@ interface SidebarProps {
 const navigationItems = [
   {
     id: 'dashboard',
-    label: 'Dashboard',
+    label: 'My Dashboard',
     path: '/user/dashboard' as const,
     icon: Home
   },
   {
     id: 'curricula',
-    label: 'Curricula',
+    label: 'My Programmes',
     path: '/user/curricula' as const,
     icon: FileText
   },
   {
     id: 'analytics',
-    label: 'Analytics',
+    label: 'Reports',
     path: '/user/analytics' as const,
     icon: BarChart
   },
   {
     id: 'settings',
-    label: 'Settings',
+    label: 'My Settings',
     path: '/user/settings' as const,
     icon: Settings
   }

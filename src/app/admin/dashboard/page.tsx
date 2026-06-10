@@ -167,7 +167,7 @@ export default function AdminDashboardOverview() {
   }, [screenSize])
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6 animate-fade-in -mx-3 sm:-mx-4 md:-mx-6 lg:-mx-8 px-3 sm:px-4 md:px-6 lg:px-8 py-4 bg-must-green/[0.04] min-h-screen">
         {/* Notification */}
         {notification.show && (
           <div className={cn(
@@ -205,11 +205,11 @@ export default function AdminDashboardOverview() {
         {/* Dashboard Header */}
         <div>
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div className="flex-1 min-w-0">
-              <h1 className="text-xl md:text-2xl font-bold text-gray-900 mb-2">
+            <div className="flex-1 min-w-0 border-l-4 border-must-green pl-3">
+              <h1 className="text-xl font-bold text-gray-900">
                 Admin Dashboard
               </h1>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-gray-500 mt-0.5">
                 Complete system overview and management
               </p>
             </div>
@@ -217,25 +217,25 @@ export default function AdminDashboardOverview() {
             <div className="flex flex-wrap gap-2 sm:gap-3">
               <button
                 onClick={handleCreateUser}
-                className="flex items-center gap-2 px-4 py-2.5 bg-must-green text-white rounded-lg hover:bg-must-green-dark transition-all duration-300 font-semibold text-sm shadow-sm hover:shadow-md hover:-translate-y-0.5"
+                className="flex items-center gap-2 px-4 py-2 bg-must-green text-white rounded-lg hover:bg-must-green-dark transition-all duration-200 font-semibold text-sm shadow-sm hover:shadow-md"
               >
                 <UserPlus className="w-4 h-4" />
                 <span>Create User</span>
               </button>
-              
+
               <button
                 onClick={handleExportReport}
-                className="flex items-center gap-2 px-4 py-2.5 bg-must-blue text-white rounded-lg hover:bg-blue-700 transition-all duration-300 font-semibold text-sm shadow-sm hover:shadow-md hover:-translate-y-0.5"
+                className="flex items-center gap-2 px-4 py-2 bg-must-blue text-white rounded-lg hover:bg-blue-700 transition-all duration-200 font-semibold text-sm shadow-sm hover:shadow-md"
               >
                 <Download className="w-4 h-4" />
                 <span className="hidden sm:inline">Export Report</span>
                 <span className="sm:hidden">Export</span>
               </button>
-              
+
               <button
                 onClick={refreshStats}
                 disabled={statsLoading}
-                className="flex items-center gap-2 px-4 py-2.5 bg-white border-2 border-gray-300 text-gray-700 rounded-lg hover:border-must-green hover:bg-must-green-lighter/20 transition-all duration-300 font-semibold text-sm disabled:opacity-60"
+                className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 font-semibold text-sm disabled:opacity-60"
               >
                 <RotateCw className={cn('w-4 h-4', statsLoading && 'animate-spin')} />
                 <span className="hidden sm:inline">Refresh Stats</span>

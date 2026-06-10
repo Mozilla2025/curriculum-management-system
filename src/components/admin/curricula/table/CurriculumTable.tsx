@@ -89,7 +89,7 @@ export function CurriculumTable({
           <thead className="bg-gray-50 border-b-2 border-gray-200">
             <tr>
               <th className="px-6 py-4 text-left text-sm font-semibold text-gray-800 whitespace-nowrap w-[35%] min-w-[300px]">
-                Curriculum Title
+                Programme Name
               </th>
               <th className="px-6 py-4 text-left text-sm font-semibold text-gray-800 whitespace-nowrap w-[20%] min-w-[200px]">
                 School
@@ -98,7 +98,7 @@ export function CurriculumTable({
                 Department
               </th>
               <th className="px-6 py-4 text-left text-sm font-semibold text-gray-800 whitespace-nowrap w-[10%] min-w-[120px]">
-                Status
+                Stage
               </th>
               <th className="px-6 py-4 text-left text-sm font-semibold text-gray-800 whitespace-nowrap w-[12%] min-w-[140px]">
                 Last Updated

@@ -16,10 +16,8 @@ import { FilterSection } from './FilterSection'
 import { NotificationBanner } from './NotificationBanner'
 import { ExpiryAlert } from './ExpiryAlert'
 import { CurriculumTable } from './table/CurriculumTable'
-import { SchoolsView } from './schools/SchoolsView'
 import { CurriculumModal } from './modals/CurriculumModal'
 import { DeleteConfirmationModal } from './modals/DeleteConfirmationModal'
-import { useSchoolsData } from './hooks/useSchoolsData'
 import { useCurriculaFilters } from './hooks/useCurriculaFilters'
 
 interface AdminCurriculaClientProps {
@@ -55,7 +53,6 @@ export function AdminCurriculaClient({
     totalPages: Math.ceil(initialCurricula.length / DEFAULT_PAGINATION.pageSize),
   })
 
-  const [viewMode, setViewMode] = useState<'schools' | 'table'>('schools')
   const [isLoading, setIsLoading] = useState(false)
   const [isSearching, setIsSearching] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
@@ -80,7 +77,6 @@ export function AdminCurriculaClient({
     useCurriculaFilters()
 
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null)
-  const schoolsData = useSchoolsData(curricula, schools, programs)
 
   const showNotification = useCallback((message: string, type: 'success' | 'error') => {
     setNotification({ show: true, message, type })
@@ -329,8 +325,6 @@ export function AdminCurriculaClient({
       <StatsGrid stats={computedStats} />
 
       <FilterSection
-        viewMode={viewMode}
-        onViewModeChange={setViewMode}
         searchTerm={searchQuery}
         setSearchTerm={handleSearchChange}
         isSearching={isSearching}
@@ -338,54 +332,32 @@ export function AdminCurriculaClient({
         setStatusFilter={(val) => updateFilter('statusFilter', val)}
         selectedSchool={filters.selectedSchool}
         setSelectedSchool={(val) => updateFilter('selectedSchool', val)}
-        selectedProgram={filters.selectedProgram}
-        setSelectedProgram={(val) => updateFilter('selectedProgram', val)}
-        selectedDepartment={filters.selectedDepartment}
-        setSelectedDepartment={(val) => updateFilter('selectedDepartment', val)}
-        sortBy={filters.sortBy}
-        setSortBy={(val) => updateFilter('sortBy', val)}
         resetFilters={resetFilters}
         hasActiveFilters={hasActiveFilters}
         schools={schools}
-        programs={programs}
-        showAdvancedFilters={viewMode === 'table'}
       />
 
-      <div className="mt-6">
-          {viewMode === 'table' ? (
-            <CurriculumTable
-              curricula={paginatedCurricula}
-              isLoading={isLoading}
-              currentPage={pagination.currentPage}
-              pageSize={pagination.pageSize}
-              totalElements={pagination.totalElements}
-              totalPages={pagination.totalPages}
-              hasNext={pagination.hasNext}
-              hasPrevious={pagination.hasPrevious}
-              onPageChange={handlePageChange}
-              onPreviousPage={() => handlePageChange(pagination.currentPage - 1)}
-              onNextPage={() => handlePageChange(pagination.currentPage + 1)}
-              onPageSizeChange={handlePageSizeChange}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-              onApprove={handleApprove}
-              onReject={handleReject}
-              getSchoolName={getSchoolName}
-              getProgramName={getProgramName}
-              onRefresh={() => {}}
-            />
-          ) : (
-            <SchoolsView
-              schoolsData={schoolsData}
-              allCurricula={filteredCurricula}
-              isLoading={isLoading}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-              onApprove={handleApprove}
-              onReject={handleReject}
-            />
-          )}
-      </div>
+      <CurriculumTable
+        curricula={paginatedCurricula}
+        isLoading={isLoading}
+        currentPage={pagination.currentPage}
+        pageSize={pagination.pageSize}
+        totalElements={pagination.totalElements}
+        totalPages={pagination.totalPages}
+        hasNext={pagination.hasNext}
+        hasPrevious={pagination.hasPrevious}
+        onPageChange={handlePageChange}
+        onPreviousPage={() => handlePageChange(pagination.currentPage - 1)}
+        onNextPage={() => handlePageChange(pagination.currentPage + 1)}
+        onPageSizeChange={handlePageSizeChange}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+        onApprove={handleApprove}
+        onReject={handleReject}
+        getSchoolName={getSchoolName}
+        getProgramName={getProgramName}
+        onRefresh={() => {}}
+      />
 
       <CurriculumModal
         isOpen={modalState.isOpen}

@@ -14,7 +14,7 @@ export default function AcademicStructureClient() {
       <div className="mb-8">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-800">Academic Structure Management</h1>
+            <h1 className="text-3xl font-bold text-gray-800">Schools & Departments</h1>
             <p className="text-gray-500 mt-1 text-sm">
               Manage schools, faculties, and departments across the institution
             </p>

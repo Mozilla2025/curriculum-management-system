@@ -22,10 +22,7 @@ export { TrackingFilters } from './filters/TrackingFilters'
 
 // Workflow
 export { WorkflowStage } from './workflow/WorkflowStage'
-export { CurriculumWorkflow } from './workflow/CurriculumWorkflow'
-
-// Table
-export { TrackingTable } from './table/TrackingTable'
+export { CurriculumWorkflowSelector } from './workflow/CurriculumWorkflowSelector'
 
 // Modals
 export { StageDetailsModal } from './modals/StageDetailsModal'

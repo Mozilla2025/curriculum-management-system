@@ -3,7 +3,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { cn } from '@/lib/utils'
 import type { TrackingViewMode, TrackingStatsData } from '@/types/tracking'
-import { VIEW_MODE_NAMES } from '@/lib/tracking/constants'
 
 interface Props {
   currentViewMode: TrackingViewMode
@@ -11,7 +10,6 @@ interface Props {
   trackingCount?: number
   onRefresh: () => void
   onInitiateCurriculum: () => void
-  onViewMode: (mode: TrackingViewMode) => void
   onShowMyInitiated: () => void
   onShowMyAssigned: () => void
   onShowBySchool: (id: string) => void
@@ -31,7 +29,7 @@ const POPOVER_CONFIG = [
 ]
 
 export function TrackingHeader({
-  currentViewMode, trackingStats, trackingCount, onRefresh, onInitiateCurriculum, onViewMode,
+  currentViewMode, trackingStats, trackingCount, onRefresh, onInitiateCurriculum,
   onShowMyInitiated, onShowMyAssigned, onShowBySchool, onShowByDepartment,
   onShowByAssignee, onShowByInitiator, onExportData,
 }: Props) {
@@ -58,13 +56,6 @@ export function TrackingHeader({
   }
 
   const current = POPOVER_CONFIG.find((p) => p.key === popover)
-  const viewBtn = (mode: TrackingViewMode, icon: string, label: string) => (
-    <button key={mode} onClick={() => onViewMode(mode)}
-      className={cn('flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold transition-all',
-        currentViewMode === mode ? 'bg-white text-must-blue shadow-sm' : 'text-gray-600 hover:bg-white/60 hover:text-gray-800')}>
-      <i className={icon} aria-hidden="true" />{label}
-    </button>
-  )
 
   return (
     <>
@@ -77,20 +68,12 @@ export function TrackingHeader({
               Curriculum Tracking
             </h1>
             <p className="text-gray-500 mt-1 text-sm">Monitor curriculum progress through all approval stages</p>
-            <div className="flex items-center gap-2 mt-2 text-xs text-gray-600">
-              <i className="fas fa-eye text-must-green/70" aria-hidden="true" />
-              <span>Current View: <strong className="text-gray-800">{VIEW_MODE_NAMES[currentViewMode] ?? currentViewMode}</strong></span>
-              {trackingCount !== undefined ? <span>• {trackingCount} tracking{trackingCount !== 1 ? 's' : ''}</span> : null}
-            </div>
+            {trackingCount !== undefined && (
+              <p className="mt-1 text-xs text-gray-400">{trackingCount} tracking{trackingCount !== 1 ? 's' : ''}</p>
+            )}
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-          {/* View toggle */}
-          <div className="flex gap-1 p-1 bg-gray-100 rounded-lg">
-            {viewBtn('workflow', 'fas fa-sitemap', 'Workflow')}
-            {viewBtn('table', 'fas fa-table', 'Table')}
-          </div>
-
           {/* Personal views */}
           <button onClick={onShowMyInitiated}
             className={cn('flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold border transition-all',

@@ -33,49 +33,49 @@ const navigationSections = [
     items: [
       {
         id: 'dashboard',
-        label: 'Dashboard Overview',
+        label: 'Overview',
         icon: LayoutDashboard,
         path: '/admin/dashboard',
         badge: null
       },
       {
         id: 'curricula',
-        label: 'All Curricula',
+        label: 'All Curriculums',
         icon: BookOpen,
         path: '/admin/admin-all-curricula',
         badge: 24
       },
       {
         id: 'tracking',
-        label: 'Curriculum Tracking',
+        label: 'Track Progress',
         icon: Route,
         path: '/admin/admin-curriculum-tracking',
         badge: null
       },
       {
         id: 'users',
-        label: 'User Management',
+        label: 'Manage Users',
         icon: Users,
         path: '/admin/admin-user-management',
         badge: null
       },
       {
         id: 'academic-structure',
-        label: 'Academic Structure',
-        icon: Building2, // Make sure to import { Building2 } from 'lucide-react' at the top
+        label: 'Schools & Departments',
+        icon: Building2,
         path: '/admin/academic-structure',
         badge: null
       },
       {
         id: 'monitoring',
-        label: 'System Monitoring',
+        label: 'System Health',
         icon: BarChart3,
         path: '/admin/admin-system-monitoring',
         badge: null
       },
       {
         id: 'reports',
-        label: 'Reports & Analytics',
+        label: 'Reports',
         icon: FileText,
         path: '/admin/admin-reports',
         badge: null
@@ -88,21 +88,21 @@ const navigationSections = [
     items: [
       {
         id: 'notifications',
-        label: 'Notifications Center',
+        label: 'Notifications',
         icon: Bell,
         path: '/admin/admin-notifications',
         badge: null
       },
       {
         id: 'audit',
-        label: 'Audit Logs',
+        label: 'Activity Log',
         icon: Shield,
         path: '/admin/audit',
         badge: null
       },
       {
         id: 'settings',
-        label: 'System Settings',
+        label: 'Settings',
         icon: Settings,
         path: '/admin/admin-settings',
         badge: null

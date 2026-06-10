@@ -1,8 +1,10 @@
 'use client'
 
-import React from 'react'
+import React, { useState } from 'react'
+import Link from 'next/link'
 import type { Curriculum } from '@/types/curricula'
 import { StatusBadge } from '../shared/StatusBadge'
+import { ConfirmationModal } from '../detail/ConfirmationModal'
 
 interface CurriculumTableRowProps {
   curriculum: Curriculum
@@ -33,6 +35,8 @@ function getTimeSince(dateString: string | undefined): string {
   return `${Math.floor(diffDays / 30)} month${Math.floor(diffDays / 30) !== 1 ? 's' : ''} ago`
 }
 
+type PendingAction = 'approve' | 'reject'
+
 export function CurriculumTableRow({
   curriculum,
   isLoading,
@@ -41,33 +45,40 @@ export function CurriculumTableRow({
   onApprove,
   onReject,
 }: CurriculumTableRowProps) {
+  const [pendingAction, setPendingAction] = useState<PendingAction | null>(null)
+
+  const handleConfirm = () => {
+    if (pendingAction === 'approve') onApprove(curriculum)
+    if (pendingAction === 'reject') onReject(curriculum)
+    setPendingAction(null)
+  }
+
   const renderActions = () => {
     if (curriculum.status === 'pending') {
       return (
         <div className="flex justify-center items-center gap-2">
+          <Link
+            href={`/admin/admin-all-curricula/${curriculum.id}`}
+            title="View details"
+            className="flex items-center justify-center px-3 h-8 rounded-md bg-must-green text-white text-xs hover:bg-must-green-dark hover:-translate-y-px hover:shadow-md transition-all"
+          >
+            <i className="fas fa-eye" />
+          </Link>
           <button
-            onClick={() => onApprove(curriculum)}
+            onClick={() => setPendingAction('approve')}
             disabled={isLoading}
             title="Approve"
-            className="flex items-center justify-center w-8 h-8 rounded-md border border-[#00BF63] text-[#00BF63] text-xs hover:bg-[#00BF63] hover:text-white hover:-translate-y-px hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+            className="flex items-center justify-center w-8 h-8 rounded-md border border-must-green text-must-green text-xs hover:bg-must-green hover:text-white hover:-translate-y-px hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
           >
             <i className="fas fa-check" />
           </button>
           <button
-            onClick={() => onReject(curriculum)}
+            onClick={() => setPendingAction('reject')}
             disabled={isLoading}
             title="Reject"
-            className="flex items-center justify-center w-8 h-8 rounded-md border border-[#f0b41c] text-[#f0b41c] text-xs hover:bg-[#f0b41c] hover:text-white hover:-translate-y-px hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+            className="flex items-center justify-center w-8 h-8 rounded-md border border-red-400 text-red-400 text-xs hover:bg-red-400 hover:text-white hover:-translate-y-px hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
           >
             <i className="fas fa-times" />
-          </button>
-          <button
-            onClick={() => onEdit(curriculum)}
-            disabled={isLoading}
-            title="Edit"
-            className="flex items-center justify-center px-3 h-8 rounded-md bg-[#00BF63] text-white text-xs hover:bg-[#00a855] hover:-translate-y-px hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-          >
-            <i className="fas fa-edit" />
           </button>
         </div>
       )
@@ -75,11 +86,18 @@ export function CurriculumTableRow({
 
     return (
       <div className="flex justify-center items-center gap-2">
+        <Link
+          href={`/admin/admin-all-curricula/${curriculum.id}`}
+          title="View details"
+          className="flex items-center justify-center px-3 h-8 rounded-md bg-must-green text-white text-xs hover:bg-must-green-dark hover:-translate-y-px hover:shadow-md transition-all"
+        >
+          <i className="fas fa-eye" />
+        </Link>
         <button
           onClick={() => onEdit(curriculum)}
           disabled={isLoading}
           title="Edit"
-          className="flex items-center justify-center px-3 h-8 rounded-md bg-[#00BF63] text-white text-xs hover:bg-[#00a855] hover:-translate-y-px hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+          className="flex items-center justify-center w-8 h-8 rounded-md border border-gray-300 text-gray-600 text-xs hover:bg-gray-100 hover:-translate-y-px transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
         >
           <i className="fas fa-edit" />
         </button>
@@ -96,39 +114,51 @@ export function CurriculumTableRow({
   }
 
   return (
-    <tr className="border-b border-gray-100 hover:bg-[#00BF63]/5 transition-colors">
-      <td className="px-6 py-5 align-top">
-        <div className="flex flex-col gap-1">
-          <span className="text-sm font-semibold text-gray-900 leading-snug" title={curriculum.title}>
-            {curriculum.title}
-          </span>
-          <span className="text-xs text-gray-400 font-mono">
-            {curriculum.code || curriculum.id}
-          </span>
-        </div>
-      </td>
-      <td className="px-6 py-5 text-sm text-gray-600 font-medium align-top">
-        {curriculum.schoolName || 'Unknown School'}
-      </td>
-      <td className="px-6 py-5 text-sm text-gray-600 font-medium align-top">
-        {curriculum.department || 'Unknown Department'}
-      </td>
-      <td className="px-6 py-5 align-top pt-4">
-        <StatusBadge status={curriculum.status} />
-      </td>
-      <td className="px-6 py-5 align-top">
-        <div className="flex flex-col gap-1">
-          <span className="text-sm text-gray-800 font-medium">
-            {formatDate(curriculum.lastModified)}
-          </span>
-          <span className="text-xs text-gray-400">
-            {getTimeSince(curriculum.lastModified)}
-          </span>
-        </div>
-      </td>
-      <td className="px-6 py-5 text-center align-top pt-4">
-        {renderActions()}
-      </td>
-    </tr>
+    <>
+      <tr className="border-b border-gray-100 hover:bg-green-50 transition-colors">
+        <td className="px-6 py-5 align-top">
+          <div className="flex flex-col gap-1">
+            <span className="text-sm font-semibold text-gray-900 leading-snug" title={curriculum.title}>
+              {curriculum.title}
+            </span>
+            <span className="text-xs text-gray-400 font-mono">
+              {curriculum.code || curriculum.id}
+            </span>
+          </div>
+        </td>
+        <td className="px-6 py-5 text-sm text-gray-600 font-medium align-top">
+          {curriculum.schoolName || 'Unknown School'}
+        </td>
+        <td className="px-6 py-5 text-sm text-gray-600 font-medium align-top">
+          {curriculum.department || 'Unknown Department'}
+        </td>
+        <td className="px-6 py-5 align-top pt-4">
+          <StatusBadge status={curriculum.status} />
+        </td>
+        <td className="px-6 py-5 align-top">
+          <div className="flex flex-col gap-1">
+            <span className="text-sm text-gray-800 font-medium">
+              {formatDate(curriculum.lastModified)}
+            </span>
+            <span className="text-xs text-gray-400">
+              {getTimeSince(curriculum.lastModified)}
+            </span>
+          </div>
+        </td>
+        <td className="px-6 py-5 text-center align-top pt-4">
+          {renderActions()}
+        </td>
+      </tr>
+
+      <ConfirmationModal
+        isOpen={pendingAction !== null}
+        actionType={pendingAction ?? 'approve'}
+        curriculumTitle={curriculum.title}
+        destinationStage={pendingAction === 'approve' ? 'the next stage' : 'Department'}
+        requiresReason={pendingAction === 'reject'}
+        onConfirm={handleConfirm}
+        onCancel={() => setPendingAction(null)}
+      />
+    </>
   )
 }

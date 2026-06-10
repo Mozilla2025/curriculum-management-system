@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { AuditLogsClient } from './AuditLogsClient'
 
 export const metadata: Metadata = {
-  title: 'Admin — Audit Logs | MUST',
+  title: 'Admin — Activity Log | MUST',
   description: 'Track system activities, user actions, and compliance events',
 }
 

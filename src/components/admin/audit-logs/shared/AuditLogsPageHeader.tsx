@@ -16,7 +16,7 @@ export function AuditLogsPageHeader({ onRefresh, isRefreshing = false }: AuditLo
             <Shield className="w-6 h-6 text-must-gold" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Audit Logs</h1>
+            <h1 className="text-3xl font-bold text-gray-900">Activity Log</h1>
             <p className="text-sm text-gray-600 mt-1">
               Track all system activities, user actions, and compliance events
             </p>
