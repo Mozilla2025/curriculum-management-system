@@ -69,38 +69,32 @@ export function DashboardCards({ stats, loading = false }: DashboardCardsProps) 
     },
   ]
 
-  if (loading) {
-    return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {[...Array(4)].map((_, i) => (
-          <div
-            key={i}
-            className="bg-white rounded-xl border border-gray-200 p-4 animate-pulse"
-          >
-            <div className="flex justify-between items-start mb-3">
-              <div className="w-10 h-10 bg-gray-200 rounded-lg" />
-            </div>
-            <div className="h-7 bg-gray-200 rounded w-20 mb-2" />
-            <div className="h-3 bg-gray-200 rounded w-32" />
-          </div>
-        ))}
-      </div>
-    )
-  }
-
+  // Always attach ref so the intersection observer fires correctly.
+  // Returning a skeleton before the ref div would leave the observer unattached
+  // when loading ends, keeping cards at opacity-0 forever.
   return (
     <div
       ref={ref as React.RefObject<HTMLDivElement>}
       className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
     >
-      {cards.map((card, index) => (
-        <DashboardCard
-          key={card.id}
-          card={card}
-          index={index}
-          shouldAnimate={isIntersecting}
-        />
-      ))}
+      {loading
+        ? [...Array(4)].map((_, i) => (
+            <div key={i} className="bg-white rounded-xl border border-gray-200 p-4 animate-pulse">
+              <div className="flex justify-between items-start mb-3">
+                <div className="w-10 h-10 bg-gray-200 rounded-lg" />
+              </div>
+              <div className="h-7 bg-gray-200 rounded w-20 mb-2" />
+              <div className="h-3 bg-gray-200 rounded w-32" />
+            </div>
+          ))
+        : cards.map((card, index) => (
+            <DashboardCard
+              key={card.id}
+              card={card}
+              index={index}
+              shouldAnimate={isIntersecting}
+            />
+          ))}
     </div>
   )
 }

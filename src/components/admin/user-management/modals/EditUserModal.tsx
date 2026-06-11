@@ -89,6 +89,8 @@ export function EditUserModal({ user, onClose, onSuccess, onError, onUpdateUser 
         const updatedUser: User = {
           ...user,
           ...payload,
+          department: payload.department ?? user.department,
+          phoneNumber: payload.phoneNumber ?? user.phoneNumber,
           status: payload.enabled ? 'active' : 'inactive',
           avatar: `${payload.firstName[0]}${payload.lastName[0]}`,
           updatedAt: new Date().toISOString(),

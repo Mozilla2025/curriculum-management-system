@@ -65,7 +65,7 @@ export const initialCurriculumData = {
 }
 
 export const filterTabs = [
-  { id: 'all', label: 'All Programs' },
+  { id: 'all', label: 'All' },
   { id: 'masters', label: 'Masters' },
   { id: 'degree', label: 'Bachelor' },
   { id: 'phd', label: 'PhD' },

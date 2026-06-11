@@ -314,7 +314,6 @@ export function AdminCurriculaClient({
           count={expiryCount}
           onView={() => {
             updateFilter('statusFilter', 'approved')
-            setViewMode('table')
           }}
           onDismiss={() => setShowExpiryAlert(false)}
         />

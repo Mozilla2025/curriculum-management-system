@@ -97,5 +97,5 @@ export function canTakeStageAction(status?: string): boolean {
 }
 
 export function getUniqueValues(curricula: CurriculumTracking[], field: keyof CurriculumTracking): string[] {
-  return [...new Set(curricula.map((c) => String(c[field] ?? '')).filter(Boolean))].sort()
+  return Array.from(new Set(curricula.map((c) => String(c[field] ?? '')).filter(Boolean))).sort()
 }

@@ -1,0 +1,7 @@
+export { useGetAllDepartments } from './useGetAllDepartments'
+export { useGetDepartmentsBySchool } from './useGetDepartmentsBySchool'
+export { useGetDepartmentPageBySchool } from './useGetDepartmentPageBySchool'
+export { useGetDepartmentById } from './useGetDepartmentById'
+export { useCreateDepartment } from './useCreateDepartment'
+export { useUpdateDepartment } from './useUpdateDepartment'
+export { useDeleteDepartment } from './useDeleteDepartment'

@@ -44,7 +44,7 @@ export function SearchSection({
       <div className="mb-6">
         <h2 className="text-lg font-semibold text-gray-900 mb-2 flex items-center gap-2">
           <Search className="w-5 h-5 text-must-green" />
-          Find Curricula
+          Find Curriculums
         </h2>
         <p className="text-sm text-gray-600">
           Search across all academic programs and departments

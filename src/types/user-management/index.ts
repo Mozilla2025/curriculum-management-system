@@ -119,3 +119,38 @@ export const ALL_ROLES: { value: UserRole; label: string }[] = [
   { value: 'SENATE', label: 'Senate' },
   { value: 'STAFF', label: 'Staff' },
 ]
+
+// ============================================================================
+// Backend DTO Types — match UserResponse.java and related request DTOs exactly
+// ============================================================================
+
+// Backend role names as returned by the API
+export type BackendRole = 'ADMIN' | 'DEAN' | 'QA' | 'HOD' | 'VICE_CHANCELLOR'
+
+export interface UserResponse {
+  id: number
+  username: string
+  email: string
+  firstName: string
+  lastName: string
+  phoneNumber: string | null
+  enabled: boolean
+  roles: string[]
+  createdAt: string
+  updatedAt: string
+}
+
+export interface CreateUserRequest {
+  username: string
+  email: string
+  firstName: string
+  lastName: string
+  phoneNumber?: string
+  password: string
+  roleName?: BackendRole
+}
+
+export interface AssignRoleRequest {
+  userId: number
+  roleName: BackendRole
+}
