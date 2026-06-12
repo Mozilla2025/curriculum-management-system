@@ -1,11 +1,5 @@
 import type { Metadata } from 'next'
 import { AdminCurriculaClient } from '@/components/admin/curricula/AdminCurriculaClient'
-import {
-  mockAdminCurricula,
-  mockAdminSchools,
-  mockAdminPrograms,
-  mockAdminStats,
-} from '@/lib/mock-data'
 
 export const metadata: Metadata = {
   title: 'Admin — All Curricula | MUST',
@@ -13,12 +7,5 @@ export const metadata: Metadata = {
 }
 
 export default function AdminAllCurriculaPage() {
-  return (
-    <AdminCurriculaClient
-      initialCurricula={mockAdminCurricula}
-      initialSchools={mockAdminSchools}
-      initialPrograms={mockAdminPrograms}
-      initialStats={mockAdminStats}
-    />
-  )
+  return <AdminCurriculaClient />
 }

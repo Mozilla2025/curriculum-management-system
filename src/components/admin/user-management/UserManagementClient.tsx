@@ -1,10 +1,21 @@
 'use client'
 
-import { useEffect, useCallback } from 'react'
-import { useUserManagement } from '@/hooks/user-management/useUserManagement'
-import { formatUserAvatar } from '@/lib/user-management/utils'
-import { mockUsers } from '@/lib/mock-data'
-import type { User } from '@/types/user-management'
+import { useState, useCallback, useMemo } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
+
+import { useGetAllUsers } from '@/hooks/api/users'
+import { axiosClient } from '@/lib/api/axiosClient'
+import { computeStats, formatUserAvatar } from '@/lib/user-management/utils'
+import { queryKeys } from '@/utils/queryKeys'
+
+import type {
+  User,
+  UserRole,
+  UserFilters,
+  UserModalState,
+  UserNotification,
+  UserResponse,
+} from '@/types/user-management'
 
 import { UserManagementNotification } from './UserManagementNotification'
 import { UserManagementHeader } from './header/UserManagementHeader'
@@ -16,157 +27,130 @@ import { EditUserModal } from './modals/EditUserModal'
 import { ConfirmDeleteModal } from './modals/ConfirmDeleteModal'
 import { ManageRolesModal } from './modals/ManageRolesModal'
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_BASE_URL
-const USE_MOCK_DATA = true // Set to false when API is ready
+// ── Adapter ────────────────────────────────────────────────────────────────
 
-function formatUserData(raw: any[]): User[] {
-  return raw.map((u) => ({
-    id: u.id,
-    firstName: u.firstName || 'Unknown',
-    lastName: u.lastName || 'User',
-    email: u.email || 'No email',
-    username: u.username || u.email || 'No username',
-    phoneNumber: u.phoneNumber ?? null,
-    roles: Array.isArray(u.roles) ? u.roles : u.roles ? [u.roles] : [],
-    status: u.enabled ? 'active' : 'inactive',
-    department: u.department || u.school || u.organization || 'N/A',
-    avatar: formatUserAvatar(u.firstName || 'U', u.lastName || ''),
-    createdAt: u.createdAt,
-    updatedAt: u.updatedAt,
-  }))
+function responseToUser(r: UserResponse): User {
+  return {
+    id:          r.id,
+    firstName:   r.firstName  || 'Unknown',
+    lastName:    r.lastName   || 'User',
+    email:       r.email      || '',
+    username:    r.username   || r.email,
+    phoneNumber: r.phoneNumber ?? null,
+    roles:       (r.roles as UserRole[]) ?? [],
+    status:      r.enabled ? 'active' : 'inactive',
+    department:  'N/A',
+    avatar:      formatUserAvatar(r.firstName || 'U', r.lastName || ''),
+    createdAt:   r.createdAt,
+    updatedAt:   r.updatedAt,
+  }
 }
 
+// ── Skeleton ───────────────────────────────────────────────────────────────
+
+function UserManagementSkeleton() {
+  return (
+    <div className="space-y-6 animate-pulse">
+      <div className="h-14 bg-gray-200 rounded-xl w-full" />
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div key={i} className="h-24 bg-gray-200 rounded-xl" />
+        ))}
+      </div>
+      <div className="h-12 bg-gray-200 rounded-xl w-full" />
+      <div className="h-96 bg-gray-200 rounded-xl w-full" />
+    </div>
+  )
+}
+
+// ── Defaults ───────────────────────────────────────────────────────────────
+
+const INITIAL_FILTERS: UserFilters   = { search: '', role: '', status: '' }
+const INITIAL_MODALS: UserModalState = {
+  addUser: false, editUser: false, manageRoles: false, confirm: false, deleteRole: false,
+}
+
+// ── Component ──────────────────────────────────────────────────────────────
+
 export function UserManagementClient() {
-  const {
-    users,
-    setUsers,
-    stats,
-    isLoading,
-    setIsLoading,
-    filters,
-    updateFilter,
-    clearFilters,
-    modals,
-    openModal,
-    closeModal,
-    selectedUser,
-    notification,
-    showNotification,
-    hideNotification,
-    handleAddUser,
-    handleUpdateUser,
-    handleUpdateRoles,
-    handleDeleteUser,
-  } = useUserManagement()
+  const queryClient = useQueryClient()
 
-  const fetchUsers = useCallback(async () => {
-    setIsLoading(true)
-    try {
-      // Use mock data if enabled
-      if (USE_MOCK_DATA) {
-        setUsers(mockUsers)
-        showNotification(`Loaded ${mockUsers.length} users from mock data`, 'info')
-        setIsLoading(false)
-        return
-      }
+  // ── Server state ─────────────────────────────────────────────────────
+  const { data: rawUsers, isPending } = useGetAllUsers()
 
-      const token =
-        typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null
+  // ── Derived data ──────────────────────────────────────────────────────
+  const users = useMemo(() => (rawUsers ?? []).map(responseToUser), [rawUsers])
+  const stats = useMemo(() => computeStats(users), [users])
 
-      if (!token) {
-        showNotification('Authentication token not found. Please log in again.', 'error')
-        return
-      }
+  // ── UI state ──────────────────────────────────────────────────────────
+  const [filters, setFilters]           = useState<UserFilters>(INITIAL_FILTERS)
+  const [modals, setModals]             = useState<UserModalState>(INITIAL_MODALS)
+  const [selectedUser, setSelectedUser] = useState<User | null>(null)
+  const [isDeleting, setIsDeleting]     = useState(false)
+  const [notification, setNotification] = useState<UserNotification>({
+    show: false, message: '', type: 'success',
+  })
 
-      const response = await fetch(`${API_BASE_URL}/users/get-all-users`, {
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      })
-
-      if (response.ok) {
-        const result = await response.json()
-        const raw: any[] = Array.isArray(result.data)
-          ? result.data
-          : Array.isArray(result)
-          ? result
-          : []
-
-        if (raw.length > 0) {
-          setUsers(formatUserData(raw))
-          showNotification(`Successfully loaded ${raw.length} users`, 'success')
-        } else {
-          setUsers([])
-          showNotification('No users found in the system', 'info')
-        }
-      } else {
-        const errorData = await response.json().catch(() => ({ message: 'Unknown error' }))
-        if (response.status === 401)
-          showNotification('Session expired. Please log in again.', 'error')
-        else if (response.status === 403)
-          showNotification('You do not have permission to view users.', 'error')
-        else showNotification(errorData.message || `Failed to fetch users (${response.status})`, 'error')
-        setUsers([])
-      }
-    } catch {
-      showNotification('Network error. Please check your connection.', 'error')
-      setUsers([])
-    } finally {
-      setIsLoading(false)
-    }
-  }, [setIsLoading, setUsers, showNotification])
-
-  useEffect(() => {
-    fetchUsers()
-  }, [fetchUsers])
-
-  const handleDeleteClick = useCallback(
-    (user: User) => {
-      openModal('confirm', user)
+  const showNotification = useCallback(
+    (message: string, type: UserNotification['type'] = 'success') => {
+      setNotification({ show: true, message, type })
+      setTimeout(() => setNotification((p) => ({ ...p, show: false })), 5000)
     },
-    [openModal]
+    [],
   )
 
+  const hideNotification = useCallback(
+    () => setNotification((p) => ({ ...p, show: false })),
+    [],
+  )
+
+  const openModal = useCallback((name: keyof UserModalState, user?: User) => {
+    if (user) setSelectedUser(user)
+    setModals((p) => ({ ...p, [name]: true }))
+  }, [])
+
+  const closeModal = useCallback((name: keyof UserModalState) => {
+    setModals((p) => ({ ...p, [name]: false }))
+    setSelectedUser(null)
+  }, [])
+
+  const updateFilter = useCallback(
+    <K extends keyof UserFilters>(key: K, value: UserFilters[K]) =>
+      setFilters((p) => ({ ...p, [key]: value })),
+    [],
+  )
+
+  const invalidateUsers = useCallback(
+    () => queryClient.invalidateQueries({ queryKey: queryKeys.users.all }),
+    [queryClient],
+  )
+
+  // ── Delete ────────────────────────────────────────────────────────────
   const handleConfirmDelete = useCallback(async () => {
     if (!selectedUser) return
+    setIsDeleting(true)
     try {
-      const token =
-        typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null
-      if (!token) return
-
-      const response = await fetch(`${API_BASE_URL}/users/${selectedUser.id}/delete`, {
-        method: 'DELETE',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      })
-
-      if (response.ok) {
-        handleDeleteUser(selectedUser.id)
-      } else {
-        const errorData = await response.json().catch(() => ({}))
-        showNotification(errorData.message || 'Failed to delete user', 'error')
-        closeModal('confirm')
-      }
-    } catch {
-      showNotification('Network error deleting user', 'error')
+      await axiosClient.delete(`/users/${selectedUser.id}/delete`)
+      await invalidateUsers()
+      showNotification('User deleted successfully.', 'success')
       closeModal('confirm')
+    } catch {
+      showNotification('Failed to delete user. Please try again.', 'error')
+    } finally {
+      setIsDeleting(false)
     }
-  }, [selectedUser, handleDeleteUser, showNotification, closeModal])
+  }, [selectedUser, invalidateUsers, showNotification, closeModal])
+
+  // ── Skeleton gate ─────────────────────────────────────────────────────
+  if (isPending && !rawUsers) return <UserManagementSkeleton />
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <UserManagementNotification
-        notification={notification}
-        onClose={hideNotification}
-      />
+      <UserManagementNotification notification={notification} onClose={hideNotification} />
 
       <UserManagementHeader
         onAddUser={() => openModal('addUser')}
-        onRefresh={fetchUsers}
+        onRefresh={invalidateUsers}
       />
 
       <UserManagementSearchFilter
@@ -174,46 +158,25 @@ export function UserManagementClient() {
         onSearch={(v) => updateFilter('search', v)}
         onRoleFilter={(v) => updateFilter('role', v)}
         onStatusFilter={(v) => updateFilter('status', v)}
-        onClearFilters={clearFilters}
+        onClearFilters={() => setFilters(INITIAL_FILTERS)}
       />
 
       <UserManagementStatsSection stats={stats} />
 
-      {isLoading ? (
-        <LoadingState />
-      ) : (
-        <UsersTable
-          users={users}
-          filters={filters}
-          onEdit={(user) => openModal('editUser', user)}
-          onManageRoles={(user) => openModal('manageRoles', user)}
-          onDelete={handleDeleteClick}
-        />
-      )}
+      <UsersTable
+        users={users}
+        filters={filters}
+        onEdit={(user) => openModal('editUser', user)}
+        onManageRoles={(user) => openModal('manageRoles', user)}
+        onDelete={(user) => openModal('confirm', user)}
+      />
 
-      {/* ── Modals ── */}
       {modals.addUser && (
         <AddUserModal
           onClose={() => closeModal('addUser')}
-          onSuccess={(msg) => showNotification(msg, 'success')}
+          onSuccess={(msg) => { showNotification(msg, 'success'); invalidateUsers() }}
           onError={(msg) => showNotification(msg, 'error')}
-          onAddUser={(data) => {
-            const newUser: User = {
-              id: data.id || Date.now(),
-              firstName: data.firstName,
-              lastName: data.lastName,
-              email: data.email,
-              username: data.username,
-              phoneNumber: data.phoneNumber ?? null,
-              roles: data.roles || [],
-              status: data.enabled ? 'active' : 'inactive',
-              department: data.department || 'N/A',
-              avatar: formatUserAvatar(data.firstName || 'U', data.lastName || ''),
-              createdAt: new Date().toISOString(),
-              updatedAt: new Date().toISOString(),
-            }
-            handleAddUser(newUser)
-          }}
+          onAddUser={() => invalidateUsers()}
         />
       )}
 
@@ -221,9 +184,9 @@ export function UserManagementClient() {
         <EditUserModal
           user={selectedUser}
           onClose={() => closeModal('editUser')}
-          onSuccess={(msg) => showNotification(msg, 'success')}
+          onSuccess={(msg) => { showNotification(msg, 'success'); invalidateUsers() }}
           onError={(msg) => showNotification(msg, 'error')}
-          onUpdateUser={handleUpdateUser}
+          onUpdateUser={(_updated) => { invalidateUsers(); closeModal('editUser') }}
         />
       )}
 
@@ -231,9 +194,9 @@ export function UserManagementClient() {
         <ManageRolesModal
           user={selectedUser}
           onClose={() => closeModal('manageRoles')}
-          onSuccess={(msg) => showNotification(msg, 'success')}
+          onSuccess={(msg) => { showNotification(msg, 'success'); invalidateUsers() }}
           onError={(msg) => showNotification(msg, 'error')}
-          onUpdateRoles={handleUpdateRoles}
+          onUpdateRoles={(_userId, _roles) => { invalidateUsers(); closeModal('manageRoles') }}
         />
       )}
 
@@ -241,18 +204,9 @@ export function UserManagementClient() {
         <ConfirmDeleteModal
           user={selectedUser}
           onClose={() => closeModal('confirm')}
-          onConfirm={handleConfirmDelete}
+          onConfirm={isDeleting ? () => {} : handleConfirmDelete}
         />
       )}
-    </div>
-  )
-}
-
-function LoadingState() {
-  return (
-    <div className="bg-white rounded-xl border border-gray-200 shadow-soft p-16 flex flex-col items-center justify-center gap-4">
-      <div className="w-10 h-10 border-4 border-gray-200 border-t-must-green rounded-full animate-spin" />
-      <p className="text-sm font-medium text-gray-500">Loading users...</p>
     </div>
   )
 }

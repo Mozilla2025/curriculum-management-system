@@ -2,13 +2,14 @@
 
 import { Suspense, useState, useCallback, useMemo } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import Link from 'next/link'
 import {
-  Search, X, Building2, BookOpen, Clock, CalendarCheck, ChevronLeft, ChevronRight,
+  Search, X, ChevronLeft, ChevronRight, Eye,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useGetAllSchools } from '@/hooks/api/schools'
 import { useGetAllCurricula, useGetCurriculaBySchool } from '@/hooks/api/curricula'
-import type { BackendCurriculumStatus, CurriculumDto } from '@/types/curriculum-dto'
+import type { BackendCurriculumStatus } from '@/types/curriculum-dto'
 
 const STATUS_CONFIG: Record<BackendCurriculumStatus, { pill: string; label: string }> = {
   APPROVED:     { pill: 'bg-emerald-100 text-emerald-700 border-emerald-200', label: 'Approved' },
@@ -19,96 +20,8 @@ const STATUS_CONFIG: Record<BackendCurriculumStatus, { pill: string; label: stri
 
 const PAGE_SIZE = 20
 
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString('en-US', {
-    year: 'numeric', month: 'short', day: 'numeric',
-  })
-}
-
-// ── Detail modal ──────────────────────────────────────────────────────────────
-
-function InfoCard({ icon, label, value, accent = 'green' }: {
-  icon: React.ReactNode; label: string; value: string
-  accent?: 'green' | 'gold' | 'blue' | 'purple'
-}) {
-  const bg: Record<string, string> = {
-    green:  'bg-emerald-50 text-emerald-600',
-    gold:   'bg-amber-50 text-amber-600',
-    blue:   'bg-blue-50 text-blue-600',
-    purple: 'bg-purple-50 text-purple-600',
-  }
-  return (
-    <div className="bg-gray-50 rounded-xl border border-gray-200 p-4 flex items-start gap-3">
-      <div className={cn('w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0', bg[accent])}>
-        {icon}
-      </div>
-      <div className="min-w-0">
-        <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-0.5">{label}</p>
-        <p className="text-sm font-semibold text-gray-900 truncate">{value}</p>
-      </div>
-    </div>
-  )
-}
-
-function CurriculumModal({ curriculum, onClose }: { curriculum: CurriculumDto; onClose: () => void }) {
-  const status = STATUS_CONFIG[curriculum.status] ?? {
-    pill: 'bg-gray-100 text-gray-600 border-gray-200', label: curriculum.status,
-  }
-  return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 animate-fade-in"
-      onClick={onClose}
-      role="dialog"
-      aria-modal="true"
-    >
-      <div
-        className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden animate-slide-up"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="bg-gradient-to-r from-must-green to-must-teal px-6 py-5 flex items-center justify-between">
-          <h2 className="text-lg font-bold text-white flex items-center gap-2">
-            <BookOpen className="w-5 h-5 flex-shrink-0" />
-            Curriculum Details
-          </h2>
-          <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-lg text-white/70 hover:text-white hover:bg-white/20 transition-colors" aria-label="Close">
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-        <div className="px-6 py-5 space-y-5 max-h-[70vh] overflow-y-auto">
-          <div>
-            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Curriculum Name</p>
-            <p className="text-xl font-bold text-gray-900">{curriculum.name}</p>
-            {curriculum.code && <p className="text-xs font-mono text-gray-400 mt-0.5">Code: {curriculum.code}</p>}
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <InfoCard icon={<Building2 className="w-5 h-5" />}     label="School"       value={curriculum.schoolName}                         accent="green"  />
-            <InfoCard icon={<BookOpen className="w-5 h-5" />}      label="Department"   value={curriculum.departmentName}                     accent="gold"   />
-            <InfoCard icon={<Clock className="w-5 h-5" />}         label="Status"       value={status.label}                                  accent="blue"   />
-            <InfoCard icon={<CalendarCheck className="w-5 h-5" />} label="Last Updated" value={formatDate(curriculum.updatedAt)}              accent="purple" />
-          </div>
-          {curriculum.academicLevelName && (
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-200">
-              <p className="text-xs font-semibold text-blue-700 uppercase tracking-wider mb-1.5">Academic Level</p>
-              <p className="text-sm font-bold text-blue-900">{curriculum.academicLevelName}</p>
-            </div>
-          )}
-          {curriculum.durationSemesters && (
-            <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Duration</p>
-              <p className="text-sm font-semibold text-gray-900">
-                {curriculum.durationSemesters} semester{curriculum.durationSemesters !== 1 ? 's' : ''}
-              </p>
-            </div>
-          )}
-        </div>
-        <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-end">
-          <button onClick={onClose} className="px-5 py-2.5 text-sm font-semibold bg-white border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
-            Close
-          </button>
-        </div>
-      </div>
-    </div>
-  )
+function fmt(iso: string) {
+  return new Date(iso).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
 }
 
 // ── Table skeleton ────────────────────────────────────────────────────────────
@@ -172,9 +85,8 @@ function CurriculaContent() {
   const status   = searchParams.get('status') ?? ''
   const page     = Number(searchParams.get('page') ?? '0')
 
-  // Local text + status filters applied client-side on current page
+  // Local text filter applied client-side on current page
   const [searchInput, setSearchInput] = useState('')
-  const [selected, setSelected]       = useState<CurriculumDto | null>(null)
 
   const setParam = useCallback(
     (updates: Record<string, string | null>) => {
@@ -331,14 +243,14 @@ function CurriculaContent() {
                       <td className="px-5 py-3.5">
                         <span className={cn('inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border', s.pill)}>{s.label}</span>
                       </td>
-                      <td className="px-5 py-3.5 text-sm text-gray-500 whitespace-nowrap">{formatDate(c.updatedAt)}</td>
+                      <td className="px-5 py-3.5 text-sm text-gray-500 whitespace-nowrap">{fmt(c.updatedAt)}</td>
                       <td className="px-5 py-3.5">
-                        <button
-                          onClick={() => setSelected(c)}
-                          className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-white bg-must-green hover:bg-must-green-dark rounded-lg transition-all hover:-translate-y-px hover:shadow-sm"
+                        <Link
+                          href={`/user/curricula/${c.id}`}
+                          className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-white bg-must-green hover:bg-must-green-dark rounded-lg transition-all hover:-translate-y-px hover:shadow-sm"
                         >
-                          <i className="fas fa-eye text-[10px]" aria-hidden="true" /> View
-                        </button>
+                          <Eye className="w-3.5 h-3.5" /> View
+                        </Link>
                       </td>
                     </tr>
                   )
@@ -370,8 +282,6 @@ function CurriculaContent() {
         </div>
       )}
 
-      {/* Detail modal */}
-      {selected && <CurriculumModal curriculum={selected} onClose={() => setSelected(null)} />}
     </div>
   )
 }

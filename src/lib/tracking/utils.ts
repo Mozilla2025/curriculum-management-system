@@ -1,5 +1,79 @@
 import { TRACKING_STAGES } from './constants'
-import type { CurriculumTracking } from '@/types/tracking'
+import type {
+  CurriculumTracking,
+  TrackingDetailDto,
+  TrackingOverviewDto,
+  TrackingStage,
+  TrackingStatus,
+} from '@/types/tracking'
+
+// ── Backend → legacy type mapping ──────────────────────────────────────────
+const STAGE_KEY_MAP: Record<TrackingStage, string> = {
+  IDEATION:                 'department_submission',
+  REVIEW_APPROVAL:          'department_submission',
+  SCHOOL_BOARD:             'school_board_review',
+  DEAN_COMMITTEE:           'dean_committee',
+  SENATE:                   'senate_review',
+  QA_INTERNAL_AUDIT:        'quality_assurance',
+  CUE_EXTERNAL_AUDIT:       'cue_review',
+  VICE_CHANCELLOR_APPROVAL: 'final_approval',
+  ACCREDITED:               'final_approval',
+}
+
+const STATUS_MAP: Record<TrackingStatus, string> = {
+  INITIATED:             'pending_approval',
+  IN_PROGRESS:           'under_review',
+  APPROVED:              'completed',
+  REJECTED:              'rejected',
+  RETURNED_FOR_REVISION: 'pending_approval',
+  COMPLETED:             'completed',
+}
+
+export function adaptTrackingOverview(dto: TrackingOverviewDto): CurriculumTracking {
+  return {
+    id:                      dto.id,
+    trackingId:              dto.trackingId,
+    title:                   dto.displayCurriculumName,
+    displayTitle:            dto.displayCurriculumName,
+    displayCode:             dto.displayCurriculumCode,
+    proposedCurriculumName:  dto.proposedCurriculumName,
+    proposedCurriculumCode:  dto.proposedCurriculumCode,
+    curriculumId:            dto.curriculumId ?? undefined,
+    school:                  dto.schoolName,
+    schoolName:              dto.schoolName,
+    schoolId:                dto.schoolId,
+    department:              dto.departmentName,
+    departmentName:          dto.departmentName,
+    departmentId:            dto.departmentId,
+    academicLevel:           dto.academicLevelName ?? undefined,
+    currentStage:            STAGE_KEY_MAP[dto.currentStage] as CurriculumTracking['currentStage'],
+    currentStageDisplayName: dto.currentStageDisplayName,
+    originalCurrentStage:    dto.currentStage,
+    status:                  STATUS_MAP[dto.status] ?? 'under_review',
+    statusDisplayName:       dto.statusDisplayName,
+    isActive:                dto.isActive,
+    isCompleted:             dto.status === 'COMPLETED' || dto.status === 'APPROVED',
+    initiatedByName:         dto.initiatedByName,
+    currentAssigneeName:     dto.currentAssigneeName ?? undefined,
+    stages:                  {},
+  }
+}
+
+export function adaptTrackingDetail(dto: TrackingDetailDto): CurriculumTracking {
+  return {
+    ...adaptTrackingOverview(dto),
+    proposedDurationSemesters: dto.proposedDurationSemesters ?? undefined,
+    curriculumDescription:     dto.curriculumDescription     ?? undefined,
+    proposedEffectiveDate:     dto.proposedEffectiveDate     ?? undefined,
+    proposedExpiryDate:        dto.proposedExpiryDate        ?? undefined,
+    initiatedByEmail:          dto.initiatedByEmail,
+    currentAssigneeEmail:      dto.currentAssigneeEmail      ?? undefined,
+    initialNotes:              dto.initialNotes              ?? undefined,
+    updatedAt:                 dto.updatedAt,
+    actualCompletionDate:      dto.actualCompletionDate      ?? undefined,
+    isCompleted:               dto.isCompleted,
+  }
+}
 
 export function getStatusInfo(status: string) {
   const map: Record<string, { label: string; icon: string; color: string; bgColor: string }> = {

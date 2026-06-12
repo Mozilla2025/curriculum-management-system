@@ -1,31 +1,59 @@
 'use client'
 
-import React, { useState, useEffect, useCallback, useRef } from 'react'
+import React, { useState, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import type {
-  Curriculum,
-  School,
-  Program,
-  CurriculumStats,
-  PaginationState,
-  Notification,
-} from '@/types/curricula'
+import { useQueryClient } from '@tanstack/react-query'
+
+import { useGetAllCurricula, useUpdateCurriculum, useDeleteCurriculum } from '@/hooks/api/curricula'
+import { useGetAllSchools } from '@/hooks/api/schools'
+import { queryKeys } from '@/utils/queryKeys'
+
+import type { CurriculumDto } from '@/types/curriculum-dto'
+import type { SchoolDto } from '@/types/school'
+import type { Curriculum, School, CurriculumStats, PaginationState, Notification } from '@/types/curricula'
+
 import { PageHeader } from './PageHeader'
 import { StatsGrid } from './StatsGrid'
 import { FilterSection } from './FilterSection'
 import { NotificationBanner } from './NotificationBanner'
-import { ExpiryAlert } from './ExpiryAlert'
 import { CurriculumTable } from './table/CurriculumTable'
 import { CurriculumModal } from './modals/CurriculumModal'
 import { DeleteConfirmationModal } from './modals/DeleteConfirmationModal'
 import { useCurriculaFilters } from './hooks/useCurriculaFilters'
 
-interface AdminCurriculaClientProps {
-  initialCurricula: Curriculum[]
-  initialSchools: School[]
-  initialPrograms: Program[]
-  initialStats: CurriculumStats
+// ── Adapters ───────────────────────────────────────────────────────────────
+
+const STATUS_MAP: Record<string, Curriculum['status']> = {
+  PENDING:      'pending',
+  APPROVED:     'approved',
+  REJECTED:     'rejected',
+  UNDER_REVIEW: 'under_review',
 }
+
+function dtoToCurriculum(dto: CurriculumDto): Curriculum {
+  return {
+    id:               String(dto.id),
+    title:            dto.name,
+    code:             dto.code,
+    status:           STATUS_MAP[dto.status] ?? 'pending',
+    schoolId:         dto.schoolId,
+    schoolName:       dto.schoolName,
+    programId:        '',
+    department:       dto.departmentName,
+    departmentId:     dto.departmentId,
+    durationSemesters: dto.durationSemesters ?? undefined,
+    effectiveDate:    dto.effectiveDate ?? undefined,
+    expiryDate:       dto.expiryDate ?? undefined,
+    createdDate:      dto.createdAt,
+    lastModified:     dto.updatedAt,
+  }
+}
+
+function schoolDtoToSchool(dto: SchoolDto): School {
+  return { id: dto.id, name: dto.name, code: dto.code }
+}
+
+// ── Constants ──────────────────────────────────────────────────────────────
 
 const DEFAULT_PAGINATION: PaginationState = {
   currentPage: 1,
@@ -36,46 +64,75 @@ const DEFAULT_PAGINATION: PaginationState = {
   hasPrevious: false,
 }
 
-export function AdminCurriculaClient({
-  initialCurricula,
-  initialSchools,
-  initialPrograms,
-  initialStats,
-}: AdminCurriculaClientProps) {
+// ── Skeleton ───────────────────────────────────────────────────────────────
+
+function AdminCurriculaSkeleton() {
+  return (
+    <div className="space-y-6 animate-pulse">
+      <div className="h-14 bg-gray-200 rounded-xl w-full" />
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div key={i} className="h-32 bg-gray-200 rounded-xl" />
+        ))}
+      </div>
+      <div className="h-12 bg-gray-200 rounded-xl w-full" />
+      <div className="h-96 bg-gray-200 rounded-xl w-full" />
+    </div>
+  )
+}
+
+// ── Component ──────────────────────────────────────────────────────────────
+
+export function AdminCurriculaClient() {
   const router = useRouter()
-  const [curricula, setCurricula] = useState<Curriculum[]>(initialCurricula)
-  const [schools] = useState<School[]>(initialSchools)
-  const [programs] = useState<Program[]>(initialPrograms)
-  const [stats, setStats] = useState<CurriculumStats>(initialStats)
-  const [pagination, setPagination] = useState<PaginationState>({
-    ...DEFAULT_PAGINATION,
-    totalElements: initialCurricula.length,
-    totalPages: Math.ceil(initialCurricula.length / DEFAULT_PAGINATION.pageSize),
-  })
+  const queryClient = useQueryClient()
 
-  const [isLoading, setIsLoading] = useState(false)
+  // ── Server state ─────────────────────────────────────────────────────
+  // size: 500 loads all curricula so breakdown counts are accurate across the full dataset
+  const { data: curriculaPage, isPending: listPending } = useGetAllCurricula({ page: 0, size: 500 })
+  const { data: schoolDtos } = useGetAllSchools()
+
+  const updateMutation = useUpdateCurriculum()
+  const deleteMutation = useDeleteCurriculum()
+
+  // ── Derived data ──────────────────────────────────────────────────────
+  const curricula = React.useMemo(
+    () => (curriculaPage?.curriculums ?? []).map(dtoToCurriculum),
+    [curriculaPage],
+  )
+
+  const schools: School[] = React.useMemo(
+    () => (schoolDtos ?? []).map(schoolDtoToSchool),
+    [schoolDtos],
+  )
+
+  // Total from backend pagination metadata (always the real system total).
+  // Breakdown derived from the fully loaded list (accurate when size ≥ totalElements).
+  const stats: CurriculumStats = React.useMemo(
+    () => ({
+      total:       curriculaPage?.totalElements                          ?? 0,
+      approved:    curricula.filter((c) => c.status === 'approved').length,
+      pending:     curricula.filter((c) => c.status === 'pending').length,
+      rejected:    curricula.filter((c) => c.status === 'rejected').length,
+      draft:       0,
+      underReview: curricula.filter((c) => c.status === 'under_review').length,
+    }),
+    [curriculaPage?.totalElements, curricula],
+  )
+
+  // ── UI state ──────────────────────────────────────────────────────────
+  const [pagination, setPagination] = useState<PaginationState>(DEFAULT_PAGINATION)
   const [isSearching, setIsSearching] = useState(false)
-  const [isSaving, setIsSaving] = useState(false)
-  const [isDeleting, setIsDeleting] = useState(false)
-
   const [notification, setNotification] = useState<Notification | null>(null)
-  const [showExpiryAlert, setShowExpiryAlert] = useState(false)
-  const [expiryCount, setExpiryCount] = useState(0)
-
-  const [modalState, setModalState] = useState<{
-    isOpen: boolean
-    isEdit: boolean
-    curriculum: Curriculum | null
-  }>({ isOpen: false, isEdit: false, curriculum: null })
-
-  const [deleteState, setDeleteState] = useState<{
-    isOpen: boolean
-    curriculum: Curriculum | null
-  }>({ isOpen: false, curriculum: null })
+  const [modalState, setModalState] = useState<{ isOpen: boolean; curriculum: Curriculum | null }>(
+    { isOpen: false, curriculum: null },
+  )
+  const [deleteState, setDeleteState] = useState<{ isOpen: boolean; curriculum: Curriculum | null }>(
+    { isOpen: false, curriculum: null },
+  )
 
   const { filters, searchQuery, setSearchQuery, updateFilter, resetFilters, hasActiveFilters } =
     useCurriculaFilters()
-
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   const showNotification = useCallback((message: string, type: 'success' | 'error') => {
@@ -83,65 +140,28 @@ export function AdminCurriculaClient({
     setTimeout(() => setNotification(null), 4000)
   }, [])
 
-  const getSchoolName = useCallback(
-    (schoolId: string | number) =>
-      schools.find((s) => String(s.id) === String(schoolId))?.name ?? 'Unknown School',
-    [schools]
-  )
-
-  const getProgramName = useCallback(
-    (programId: string) =>
-      programs.find((p) => String(p.id) === String(programId))?.name ?? 'Unknown Program',
-    [programs]
-  )
-
+  // ── Client-side filters + pagination ─────────────────────────────────
   const filteredCurricula = React.useMemo(() => {
     let result = [...curricula]
-
     if (searchQuery) {
       const q = searchQuery.toLowerCase()
       result = result.filter(
         (c) =>
           c.title?.toLowerCase().includes(q) ||
           c.code?.toLowerCase().includes(q) ||
-          c.department?.toLowerCase().includes(q)
+          c.department?.toLowerCase().includes(q),
       )
     }
-
-    if (filters.statusFilter !== 'all') {
+    if (filters.statusFilter !== 'all')
       result = result.filter((c) => c.status === filters.statusFilter)
-    }
-
-    if (filters.selectedSchool && filters.selectedSchool !== 'all') {
+    if (filters.selectedSchool && filters.selectedSchool !== 'all')
       result = result.filter((c) => String(c.schoolId) === String(filters.selectedSchool))
-    }
-
-    if (filters.selectedProgram && filters.selectedProgram !== 'all') {
-      result = result.filter((c) => String(c.programId) === String(filters.selectedProgram))
-    }
-
-    if (filters.selectedDepartment && filters.selectedDepartment !== 'all') {
-      result = result.filter((c) =>
-        c.department?.toLowerCase().includes(filters.selectedDepartment.toLowerCase())
-      )
-    }
-
-    if (filters.sortBy === 'lastModified' || filters.sortBy === 'newest') {
-      result.sort(
-        (a, b) =>
-          new Date(b.lastModified ?? 0).getTime() - new Date(a.lastModified ?? 0).getTime()
-      )
-    } else if (filters.sortBy === 'oldest') {
-      result.sort(
-        (a, b) =>
-          new Date(a.lastModified ?? 0).getTime() - new Date(b.lastModified ?? 0).getTime()
-      )
-    } else if (filters.sortBy === 'title') {
+    if (filters.sortBy === 'lastModified' || filters.sortBy === 'newest')
+      result.sort((a, b) => new Date(b.lastModified ?? 0).getTime() - new Date(a.lastModified ?? 0).getTime())
+    else if (filters.sortBy === 'oldest')
+      result.sort((a, b) => new Date(a.lastModified ?? 0).getTime() - new Date(b.lastModified ?? 0).getTime())
+    else if (filters.sortBy === 'title')
       result.sort((a, b) => (a.title ?? '').localeCompare(b.title ?? ''))
-    } else if (filters.sortBy === 'status') {
-      result.sort((a, b) => (a.status ?? '').localeCompare(b.status ?? ''))
-    }
-
     return result
   }, [curricula, searchQuery, filters])
 
@@ -150,7 +170,7 @@ export function AdminCurriculaClient({
     return filteredCurricula.slice(start, start + pagination.pageSize)
   }, [filteredCurricula, pagination.currentPage, pagination.pageSize])
 
-  useEffect(() => {
+  React.useEffect(() => {
     const total = filteredCurricula.length
     const totalPages = Math.ceil(total / pagination.pageSize)
     setPagination((prev) => ({
@@ -163,13 +183,10 @@ export function AdminCurriculaClient({
     }))
   }, [filteredCurricula.length, pagination.pageSize])
 
-  const handlePageChange = (page: number) => {
-    setPagination((prev) => ({ ...prev, currentPage: page }))
-  }
-
-  const handlePageSizeChange = (size: number) => {
+  // ── Handlers ──────────────────────────────────────────────────────────
+  const handlePageChange = (page: number) => setPagination((prev) => ({ ...prev, currentPage: page }))
+  const handlePageSizeChange = (size: number) =>
     setPagination((prev) => ({ ...prev, pageSize: size, currentPage: 1 }))
-  }
 
   const handleSearchChange = (query: string) => {
     setIsSearching(true)
@@ -178,150 +195,77 @@ export function AdminCurriculaClient({
     searchTimeoutRef.current = setTimeout(() => setIsSearching(false), 300)
   }
 
-  const handleAddNew = () => {
-    router.push('/admin/admin-all-curricula/create')
+  const handleAddNew = () => router.push('/admin/admin-all-curricula/create')
+  const handleEdit = (curriculum: Curriculum) => setModalState({ isOpen: true, curriculum })
+  const handleDelete = (curriculum: Curriculum) => setDeleteState({ isOpen: true, curriculum })
+
+  const handleApprove = (curriculum: Curriculum) => {
+    showNotification(
+      `Status changes for "${curriculum.title}" are managed via Curriculum Tracking.`,
+      'error',
+    )
   }
 
-  const handleEdit = (curriculum: Curriculum) => {
-    setModalState({ isOpen: true, isEdit: true, curriculum })
+  const handleReject = (curriculum: Curriculum) => {
+    showNotification(
+      `Status changes for "${curriculum.title}" are managed via Curriculum Tracking.`,
+      'error',
+    )
   }
 
-  const handleDelete = (curriculum: Curriculum) => {
-    setDeleteState({ isOpen: true, curriculum })
+  const handleSave = (data: Partial<Curriculum>) => {
+    const curr = modalState.curriculum
+    if (!curr) return
+    updateMutation.mutate(
+      {
+        id: Number(curr.id),
+        data: {
+          name:         data.title        ?? curr.title,
+          code:         data.code         ?? curr.code,
+          schoolId:     Number(data.schoolId   ?? curr.schoolId),
+          departmentId: Number(curr.departmentId ?? 0),
+        },
+      },
+      {
+        onSuccess: () => {
+          showNotification(`"${data.title ?? curr.title}" has been updated.`, 'success')
+          setModalState({ isOpen: false, curriculum: null })
+        },
+        onError: () => showNotification('Failed to save curriculum. Please try again.', 'error'),
+      },
+    )
   }
 
-  const handleApprove = async (curriculum: Curriculum) => {
-    setIsLoading(true)
-    try {
-      await new Promise((res) => setTimeout(res, 800))
-      setCurricula((prev) =>
-        prev.map((c) =>
-          String(c.id) === String(curriculum.id) ? { ...c, status: 'approved' as const } : c
-        )
-      )
-      setStats((prev) => ({
-        ...prev,
-        approved: (prev.approved ?? 0) + 1,
-        pending: Math.max(0, (prev.pending ?? 0) - 1),
-      }))
-      showNotification(`"${curriculum.title}" has been approved.`, 'success')
-    } catch {
-      showNotification('Failed to approve curriculum. Please try again.', 'error')
-    } finally {
-      setIsLoading(false)
-    }
+  const handleConfirmDelete = () => {
+    const curr = deleteState.curriculum
+    if (!curr) return
+    deleteMutation.mutate(
+      { id: Number(curr.id) },
+      {
+        onSuccess: () => {
+          showNotification(`"${curr.title}" has been deleted.`, 'success')
+          setDeleteState({ isOpen: false, curriculum: null })
+        },
+        onError: () => showNotification('Failed to delete curriculum. Please try again.', 'error'),
+      },
+    )
   }
 
-  const handleReject = async (curriculum: Curriculum) => {
-    setIsLoading(true)
-    try {
-      await new Promise((res) => setTimeout(res, 800))
-      setCurricula((prev) =>
-        prev.map((c) =>
-          String(c.id) === String(curriculum.id) ? { ...c, status: 'rejected' as const } : c
-        )
-      )
-      setStats((prev) => ({
-        ...prev,
-        rejected: (prev.rejected ?? 0) + 1,
-        pending: Math.max(0, (prev.pending ?? 0) - 1),
-      }))
-      showNotification(`"${curriculum.title}" has been rejected.`, 'success')
-    } catch {
-      showNotification('Failed to reject curriculum. Please try again.', 'error')
-    } finally {
-      setIsLoading(false)
-    }
-  }
+  const handleRefresh = () =>
+    queryClient.invalidateQueries({ queryKey: queryKeys.curricula.all })
 
-  const handleSave = async (data: Partial<Curriculum>) => {
-    setIsSaving(true)
-    try {
-      await new Promise((res) => setTimeout(res, 1000))
-      if (modalState.isEdit && modalState.curriculum) {
-        const updated: Curriculum = {
-          ...modalState.curriculum,
-          ...data,
-          lastModified: new Date().toISOString(),
-        }
-        setCurricula((prev) =>
-          prev.map((c) => (String(c.id) === String(updated.id) ? updated : c))
-        )
-        showNotification(`"${updated.title}" has been updated.`, 'success')
-      } else {
-        const newCurriculum: Curriculum = {
-          id: `temp-${Date.now()}`,
-          code: data.code ?? '',
-          department: data.department ?? '',
-          ...data,
-          lastModified: new Date().toISOString(),
-          status: data.status ?? 'draft',
-          title: data.title ?? 'Untitled Curriculum',
-          schoolId: data.schoolId ?? '',
-          programId: data.programId ?? '',
-        }
-        setCurricula((prev) => [newCurriculum, ...prev])
-        setStats((prev) => ({ ...prev, total: (prev.total ?? 0) + 1 }))
-        showNotification(`"${newCurriculum.title}" has been created.`, 'success')
-      }
-      setModalState({ isOpen: false, isEdit: false, curriculum: null })
-    } catch {
-      showNotification('Failed to save curriculum. Please try again.', 'error')
-    } finally {
-      setIsSaving(false)
-    }
-  }
-
-  const handleConfirmDelete = async () => {
-    if (!deleteState.curriculum) return
-    setIsDeleting(true)
-    try {
-      await new Promise((res) => setTimeout(res, 800))
-      const deleted = deleteState.curriculum
-      setCurricula((prev) => prev.filter((c) => String(c.id) !== String(deleted.id)))
-      setStats((prev) => ({ ...prev, total: Math.max(0, (prev.total ?? 0) - 1) }))
-      showNotification(`"${deleted.title}" has been deleted.`, 'success')
-      setDeleteState({ isOpen: false, curriculum: null })
-    } catch {
-      showNotification('Failed to delete curriculum. Please try again.', 'error')
-    } finally {
-      setIsDeleting(false)
-    }
-  }
-
-  const computedStats: CurriculumStats = React.useMemo(() => {
-    return {
-      total: curricula.length,
-      approved: curricula.filter((c) => c.status === 'approved').length,
-      pending: curricula.filter((c) => c.status === 'pending').length,
-      rejected: curricula.filter((c) => c.status === 'rejected').length,
-      draft: curricula.filter((c) => c.status === 'draft').length,
-      underReview: curricula.filter((c) => c.status === 'under_review').length,
-    }
-  }, [curricula])
+  // ── Skeleton gate ─────────────────────────────────────────────────────
+  if (listPending && !curriculaPage) return <AdminCurriculaSkeleton />
 
   return (
     <div className="space-y-6">
       {notification && (
-        <NotificationBanner
-          notification={notification}
-          onClose={() => setNotification(null)}
-        />
-      )}
-
-      {showExpiryAlert && expiryCount > 0 && (
-        <ExpiryAlert
-          count={expiryCount}
-          onView={() => {
-            updateFilter('statusFilter', 'approved')
-          }}
-          onDismiss={() => setShowExpiryAlert(false)}
-        />
+        <NotificationBanner notification={notification} onClose={() => setNotification(null)} />
       )}
 
       <PageHeader onAddNew={handleAddNew} />
 
-      <StatsGrid stats={computedStats} />
+      <StatsGrid stats={stats} />
 
       <FilterSection
         searchTerm={searchQuery}
@@ -338,7 +282,7 @@ export function AdminCurriculaClient({
 
       <CurriculumTable
         curricula={paginatedCurricula}
-        isLoading={isLoading}
+        isLoading={false}
         currentPage={pagination.currentPage}
         pageSize={pagination.pageSize}
         totalElements={pagination.totalElements}
@@ -353,26 +297,26 @@ export function AdminCurriculaClient({
         onDelete={handleDelete}
         onApprove={handleApprove}
         onReject={handleReject}
-        getSchoolName={getSchoolName}
-        getProgramName={getProgramName}
-        onRefresh={() => {}}
+        getSchoolName={(id) => schools.find((s) => String(s.id) === String(id))?.name ?? 'Unknown'}
+        getProgramName={() => ''}
+        onRefresh={handleRefresh}
       />
 
       <CurriculumModal
         isOpen={modalState.isOpen}
-        isEdit={modalState.isEdit}
+        isEdit
         curriculum={modalState.curriculum}
         schools={schools}
-        programs={programs}
-        isSaving={isSaving}
+        programs={[]}
+        isSaving={updateMutation.isPending}
         onSave={handleSave}
-        onClose={() => setModalState({ isOpen: false, isEdit: false, curriculum: null })}
+        onClose={() => setModalState({ isOpen: false, curriculum: null })}
       />
 
       <DeleteConfirmationModal
         curriculum={deleteState.curriculum}
         isOpen={deleteState.isOpen}
-        isDeleting={isDeleting}
+        isDeleting={deleteMutation.isPending}
         onConfirm={handleConfirmDelete}
         onCancel={() => setDeleteState({ isOpen: false, curriculum: null })}
       />

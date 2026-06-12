@@ -60,7 +60,7 @@ export function CurriculumModal({
     const newErrors: Record<string, string> = {}
     if (!form.title?.trim()) newErrors.title = 'Title is required'
     if (!form.schoolId) newErrors.schoolId = 'School is required'
-    if (!form.programId) newErrors.programId = 'Program is required'
+    if (!form.programId && programs.length > 0) newErrors.programId = 'Program is required'
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
